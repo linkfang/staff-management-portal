@@ -6,7 +6,7 @@ import { css } from '@emotion/react'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-  const hello = trpc.hello.useQuery({ text: 'something...' })
+  const hello = trpc.hello.useQuery({ text: 'Home Page...' })
   return (
     <>
       <Head>
@@ -16,7 +16,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={inter.className}>
-        <p css={css({ color: 'blue' })}>{hello.data?.greeting}</p>
+        <p css={css({ margin: 0 })}>{hello.data?.greeting}</p>
       </main>
     </>
   )
