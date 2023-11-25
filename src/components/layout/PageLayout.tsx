@@ -1,21 +1,27 @@
+import Head from 'next/head'
 import { ReactNode } from 'react'
 
 type TPageLayout = { title: string; children: ReactNode }
+
 const PageLayout = ({ title, children }: TPageLayout) => {
   return (
-    <section>
-      <div className={''}>
-        <h1>{title}</h1>
-        <div>
-          <span>search</span>
-          <span>bell</span>
-          <span>message</span>
-          <span>avatar</span>
-        </div>
-      </div>
+    <>
+      <Head>
+        <title>{title} | Staff Management</title>
+      </Head>
 
-      <div>{children}</div>
-    </section>
+      <section css={{ marginBottom: 25, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h1 css={{ fontSize: 36 }}>{title}</h1>
+        <div css={{ display: 'flex', gap: 40 }}>
+          <span>Search</span>
+          <span>Bell</span>
+          <span>Message</span>
+          <span>Avatar</span>
+        </div>
+      </section>
+
+      <section>{children}</section>
+    </>
   )
 }
 

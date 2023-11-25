@@ -1,5 +1,4 @@
 import PageLayout from '@/components/layout/PageLayout'
-import { Menu } from 'antd'
 
 const EmployeesPage = () => {
   return (
