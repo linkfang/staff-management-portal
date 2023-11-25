@@ -70,7 +70,7 @@ const menuItemStyle: TEmotionCSS = {
 }
 
 /* Component */
-const Layout = ({ children }: { children: ReactNode }) => {
+const NavLayout = ({ children }: { children: ReactNode }) => {
   const { pathname } = useRouter()
   const [activeDecoration, setActiveDecoration] = useState(132)
   const activeItemRef = useRef<HTMLAnchorElement>(null)
@@ -103,4 +103,4 @@ const Layout = ({ children }: { children: ReactNode }) => {
   )
 }
 
-export default Layout
+export default NavLayout

@@ -1,13 +1,13 @@
 import type { AppType } from 'next/app'
 import { trpc } from '../utils/trpc'
-import Layout from '@/components/Layout'
+import NavLayout from '@/components/layout/NavLayout'
 import '@/styles/globals.css'
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <Layout>
+    <NavLayout>
       <Component {...pageProps} />
-    </Layout>
+    </NavLayout>
   )
 }
 
