@@ -11,17 +11,17 @@ const menuItems = [
   {
     href: '/',
     label: 'Home',
-    icon: (iconSize: number) => <HomeOutlined style={{ fontSize: iconSize }} />,
+    icon: (iconSize: number) => <HomeOutlined css={{ fontSize: iconSize }} />,
   },
   {
     href: '/employees',
     label: 'Employees',
-    icon: (iconSize: number) => <UserOutlined style={{ fontSize: iconSize }} />,
+    icon: (iconSize: number) => <UserOutlined css={{ fontSize: iconSize }} />,
   },
   {
     href: '/projects',
     label: 'Projects',
-    icon: (iconSize: number) => <ProjectOutlined style={{ fontSize: iconSize }} />,
+    icon: (iconSize: number) => <ProjectOutlined css={{ fontSize: iconSize }} />,
   },
 ] as const
 
