@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { HomeOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons'
-import { COLORS } from '@/constants/styles'
+import { COLORS, SIZES } from '@/constants/styles'
 import { useRouter } from 'next/router'
 import { TEmotionCSS } from '@/type/general'
 import Head from 'next/head'
@@ -27,8 +27,9 @@ const menuItems = [
 
 /* Styles */
 const navMenuStyle: TEmotionCSS = {
+  backgroundColor: '#fff',
   position: 'relative',
-  width: 260,
+  width: SIZES.navMenuExpand,
   boxShadow: '0px 0px 20px rgba(62, 80, 113, 0.1)',
   padding: '50px 15px',
   display: 'flex',
@@ -66,7 +67,7 @@ const menuItemStyle: TEmotionCSS = {
   gap: 15,
   transition: '0.3s ease-out',
   ':hover': {
-    backgroundColor: COLORS.grey,
+    backgroundColor: COLORS.lightGrey,
   },
 }
 
@@ -88,7 +89,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div css={{ display: 'flex', gap: 45, height: '100svh' }}>
+      <div css={{ display: 'flex', height: '100svh', backgroundColor: COLORS.bgColor }}>
         <nav css={navMenuStyle}>
           <i css={{ textAlign: 'center', height: 62 }}>Logo</i>
 
@@ -106,7 +107,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
           {<span css={{ ...activeDecorationStyle, top: 16 + activeDecoration }}></span>}
         </nav>
 
-        <main css={{ flex: 1, padding: '50px 45px 50px 0' }}>{children}</main>
+        <main css={{ flex: 1, padding: `50px ${SIZES.bodyPaddingHorizontal}px` }}>{children}</main>
       </div>
     </>
   )
