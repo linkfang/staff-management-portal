@@ -1,18 +1,19 @@
 import PageLayout from '@/components/layout/PageLayout'
-import { Table } from 'antd'
+import { COLORS, SIZES } from '@/constants/styles'
+import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 const mockData = [
   {
-    firstName: 'John',
-    lastName: 'Green',
+    firstName: 'Johnathon',
+    lastName: 'Greenyfield',
     preferredName: '',
     title: 'Web Developer',
     email: 'john.g@domain.com',
-    expertise: ['Web Development'],
+    expertise: ['Web Development', 'Design'],
     skills: [
-      { name: 'HTML', level: 5 },
-      { name: 'CSS', level: 5 },
+      { name: 'HTML', level: 4 },
+      { name: 'CSS', level: 3 },
       { name: 'JavaScript', level: 4 },
     ],
     projects: { ongoing: [1, 3, 8], completed: [2, 4] },
@@ -25,37 +26,74 @@ const mockData = [
     email: 'Bob.b@domain.com',
     expertise: ['Backend Development'],
     skills: [
-      { name: 'JavaScript', level: 4 },
-      { name: 'PostgreSQL', level: 5 },
+      { name: 'JavaScript', level: 2 },
+      { name: 'PostgreSQL', level: 1 },
     ],
-    projects: { ongoing: [1, 3, 8], completed: [2, 4] },
+    projects: { ongoing: [1], completed: [2, 4, 9] },
   },
 ]
+
+const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }
 
 // TODO: this data will be get from backend/db
 // TODO: type will be defined/referred from tRPC later on
 const renderSkillColumns: ColumnsType<any> = ['HTML', 'CSS', 'JavaScript', 'PostgreSQL'].map((item) => ({
   title: item,
-  render: (renderItem) => renderItem.skills.find((skill: any) => skill.name === item)?.level,
+  width: 120,
+  render: ({ skills }) => {
+    const skillLevel = skills.find((skill: any) => skill.name === item)?.level ?? 0
+    const originalDots = Array.from({ length: 5 }).fill(false)
+    const skillDots = originalDots.fill(true, 0, skillLevel)
+
+    return (
+      <div css={{ display: 'flex', gap: 5 }}>
+        {skillDots.map((item, index) =>
+          item ? (
+            <div key={index} css={skillDotStyle}></div>
+          ) : (
+            <div key={index} css={{ ...skillDotStyle, backgroundColor: COLORS.grey }}></div>
+          )
+        )}
+      </div>
+    )
+  },
 }))
 
 const columns: ColumnsType<any> = [
   {
     title: 'Full Name',
+    width: 190,
+    fixed: 'left',
     render: (item) => `${item.preferredName || item.firstName} ${item.lastName}`,
   },
-  { title: 'Email', dataIndex: 'email' },
-  { title: 'Title', dataIndex: 'title' },
-  { title: 'Expertise', dataIndex: 'expertise' },
-  { title: 'Projects', dataIndex: 'projects' },
+  { title: 'Title', dataIndex: 'title', width: 200 },
+  { title: 'Expertise', width: 220, render: ({ expertise }) => <>{expertise.join(', ')}</> },
+  {
+    title: 'Projects',
+    width: 85,
+    render: ({ projects }) => {
+      const ongoingProjects = projects.ongoing.length
+      return (
+        <>
+          {ongoingProjects} of {projects.completed.length + ongoingProjects}
+        </>
+      )
+    },
+  },
+  { title: 'Email', dataIndex: 'email', width: 200 },
   ...renderSkillColumns,
+  { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
 ]
 
 const EmployeesPage = () => {
   return (
     <PageLayout title="Employee">
-      <div>Content</div>
-      <Table columns={columns} dataSource={mockData} />
+      <Table
+        style={{ width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand})` }}
+        columns={columns}
+        dataSource={mockData}
+        scroll={{ x: 100 }}
+      />
     </PageLayout>
   )
 }
