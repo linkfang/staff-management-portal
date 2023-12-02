@@ -89,7 +89,7 @@ const EmployeesPage = () => {
   return (
     <PageLayout title="Employee">
       <Table
-        style={{ width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand})` }}
+        style={{ width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)` }}
         columns={columns}
         dataSource={mockData}
         scroll={{ x: 100 }}
