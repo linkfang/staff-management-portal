@@ -1,5 +1,6 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { COLORS, SIZES } from '@/constants/styles'
+
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
@@ -93,6 +94,7 @@ const EmployeesPage = () => {
         columns={columns}
         dataSource={mockData}
         scroll={{ x: 100 }}
+        rowKey="email"
       />
     </PageLayout>
   )
