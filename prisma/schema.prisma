@@ -5,13 +5,71 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator trpc {
+  provider             = "prisma-trpc-generator"
+  withZod              = true
+  withMiddleware       = false
+  withShield           = false
+  contextPath          = "../src/server/context"
+  generateModelActions = "create,createMany,delete,deleteMany,findFirst,findMany,findUnique,update,updateMany,upsert"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model TestUser {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String
+model Person {
+  id            Int           @id @default(autoincrement())
+  email         String        @unique
+  firstName     String        @db.VarChar(50)
+  lastName      String        @db.VarChar(50)
+  preferredName String        @db.VarChar(50)
+  title         String        @db.VarChar(80)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  expertise     Field[]
+  personSkill   PersonSkill[]
+}
+
+model Field {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique @db.VarChar(80)
+  skills   Skill[]
+  persons  Person[]
+  projects Project[]
+}
+
+model Skill {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(80)
+  description String        @db.VarChar(1000)
+  field       Field[]
+  personSkill PersonSkill[]
+  project     Project[]
+}
+
+model PersonSkill {
+  level     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  person    Person   @relation(fields: [personId], references: [id])
+  personId  Int
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  skillId   Int
+
+  @@id([personId, skillId])
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(200)
+  customer    String   @db.VarChar(200)
+  startDate   DateTime
+  endDate     DateTime
+  description String   @db.VarChar(1000)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  skills      Skill[]
+  fields      Field[]
 }
