@@ -12,6 +12,7 @@ generator trpc {
   withShield           = false
   contextPath          = "../src/server/context"
   generateModelActions = "create,createMany,delete,deleteMany,findFirst,findMany,findUnique,update,updateMany,upsert"
+  isGenerateInclude    = true
 }
 
 datasource db {
@@ -29,7 +30,8 @@ model Person {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   expertise     Field[]
-  personSkill   PersonSkill[]
+  personSkills  PersonSkill[]
+  projects      Project[]
 }
 
 model Field {
@@ -72,4 +74,5 @@ model Project {
   updatedAt   DateTime @updatedAt
   skills      Skill[]
   fields      Field[]
+  persons     Person[]
 }

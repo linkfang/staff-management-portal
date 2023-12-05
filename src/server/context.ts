@@ -1,13 +1,13 @@
-import type { CreateNextContextOptions } from '@trpc/server/adapters/next'
+import { prisma } from './prisma'
 
 /**
  * Creates context for an incoming request
  * @link https://trpc.io/docs/context
  */
-export async function createContext(opts: CreateNextContextOptions) {
-  // const usefulConstant = 'useful value'
+export async function createContext() {
   return {
-    // usefulConstant
+    test: 'something',
+    prisma,
   }
 }
 
