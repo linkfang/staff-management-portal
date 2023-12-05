@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import { prisma } from '../src/server/prisma'
 
 async function main() {
