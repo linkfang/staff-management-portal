@@ -30,11 +30,15 @@ export const personRouter = router({
     return deleteOnePerson
   }),
   findFirstPerson: procedure.input(PersonFindFirstSchema).query(async ({ ctx, input }) => {
-    const findFirstPerson = await ctx.prisma.person.findFirst(input)
+    const findFirstPerson = await ctx.prisma.person.findFirst({
+      include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
+    })
     return findFirstPerson
   }),
   findManyPerson: procedure.input(PersonFindManySchema).query(async ({ ctx, input }) => {
-    const findManyPerson = await ctx.prisma.person.findMany(input)
+    const findManyPerson = await ctx.prisma.person.findMany({
+      include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
+    })
     return findManyPerson
   }),
   findUniquePerson: procedure.input(PersonFindUniqueSchema).query(async ({ ctx, input }) => {
