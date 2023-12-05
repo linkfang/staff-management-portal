@@ -361,6 +361,81 @@ async function main() {
       { name: 'Testing' },
     ],
   })
+
+  const projects = await prisma.project.createMany({
+    data: [
+      {
+        name: 'Water Quality Cube',
+        customer: 'Pure Water Inc.',
+        startDate: '2024-01-01T00:00:00.000Z',
+        endDate: '2024-02-01T00:00:00.000Z',
+        description: 'Detect the water quality using a small cube',
+      },
+      {
+        name: 'Home Hub',
+        customer: 'Smart Home Solutions Inc.',
+        startDate: '2024-01-02T00:00:00.000Z',
+        endDate: '2024-02-02T00:00:00.000Z',
+        description: 'A central hub for all your smart home devices',
+      },
+      {
+        name: 'Eco-Friendly Trash Can',
+        customer: 'Green Planet Inc.',
+        startDate: '2024-01-03T00:00:00.000Z',
+        endDate: '2024-02-03T00:00:00.000Z',
+        description: 'A trash can that separates recyclable and non-recyclable waste',
+      },
+      {
+        name: 'Smart Doorbell',
+        customer: 'Home Security Solutions Inc.',
+        startDate: '2024-01-04T00:00:00.000Z',
+        endDate: '2024-02-04T00:00:00.000Z',
+        description: 'A doorbell that lets you see and talk to visitors from your phone',
+      },
+      {
+        name: 'Mirror Display',
+        customer: 'Smart Home Solutions Inc.',
+        startDate: '2024-01-05T00:00:00.000Z',
+        endDate: '2024-02-05T00:00:00.000Z',
+        description: 'A mirror that displays the weather, news, and your schedule',
+      },
+      {
+        name: 'AI Garden',
+        customer: 'Green Planet Inc.',
+        startDate: '2024-01-06T00:00:00.000Z',
+        endDate: '2024-02-06T00:00:00.000Z',
+        description: 'A garden that takes care of itself and adjusts based on weather conditions',
+      },
+      {
+        name: 'Smart Bike Lock',
+        customer: 'Bike Security Solutions Inc.',
+        startDate: '2024-01-07T00:00:00.000Z',
+        endDate: '2024-02-07T00:00:00.000Z',
+        description: 'A bike lock that can be controlled with your phone',
+      },
+      {
+        name: 'Pet Feeder',
+        customer: 'Pet Care Solutions Inc.',
+        startDate: '2024-01-08T00:00:00.000Z',
+        endDate: '2024-02-08T00:00:00.000Z',
+        description: 'A pet feeder that can be controlled remotely and dispenses food based on your pet’s needs',
+      },
+      {
+        name: 'Water Bottle',
+        customer: 'Hydration Solutions Inc.',
+        startDate: '2024-01-09T00:00:00.000Z',
+        endDate: '2024-02-09T00:00:00.000Z',
+        description: 'A water bottle that reminds you to stay hydrated and tracks your water intake',
+      },
+      {
+        name: 'Air Purifier',
+        customer: 'Air Quality Solutions Inc.',
+        startDate: '2024-01-10T00:00:00.000Z',
+        endDate: '2024-02-10T00:00:00.000Z',
+        description: 'An air purifier that adjusts based on air quality and can be controlled with your phone',
+      },
+    ],
+  })
 }
 main()
   .then(async () => {

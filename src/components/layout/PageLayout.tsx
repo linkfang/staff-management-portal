@@ -70,14 +70,14 @@ const PageLayout = ({ title, children }: TPageLayout) => {
 
         <div css={{ display: 'flex', gap: 40 }}>
           <BellOutlined css={{ fontSize: 24, color: COLORS.textBlack }} />
-          <Dropdown menu={{ items: avatarMenuItems }} trigger={['hover']} css={{ backgroundColor: 'transparent' }}>
+          {/* <Dropdown menu={{ items: avatarMenuItems }} trigger={['hover']} css={{ backgroundColor: 'transparent' }}>
             <button css={dropDownBtnStyle}>
               <div css={avatarStyle}>JG</div>
               <CaretDownOutlined
                 css={{ fontSize: 12, position: 'absolute', top: 20, right: 0, transition: '0.2s 0.15s ease-out' }}
               />
             </button>
-          </Dropdown>
+          </Dropdown> */}
         </div>
       </section>
 
