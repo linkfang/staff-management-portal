@@ -1,5 +1,6 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { COLORS, SIZES } from '@/constants/styles'
+import { RouterOutput } from '@/type/general'
 import { trpc } from '@/utils/trpc'
 
 import { Button, Table } from 'antd'
@@ -8,31 +9,32 @@ import dayjs from 'dayjs'
 
 const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }
 
-// TODO: this data will be get from backend/db
-// TODO: type will be defined/referred from tRPC later on
-const renderSkillColumns: ColumnsType<any> = ['HTML', 'CSS', 'TypeScript', 'PostgreSQL'].map((item) => ({
-  title: item,
-  width: 120,
-  render: ({ personSkills }) => {
-    const skillLevel = personSkills.find((personSkill: any) => personSkill.skill.name === item)?.level ?? 0
-    const originalDots = Array.from({ length: 5 }).fill(false)
-    const skillDots = originalDots.fill(true, 0, skillLevel)
+type TPersonData = RouterOutput['findManyPerson'][0]
 
-    return (
-      <div css={{ display: 'flex', gap: 5 }}>
-        {skillDots.map((item, index) =>
-          item ? (
-            <div key={index} css={skillDotStyle}></div>
-          ) : (
-            <div key={index} css={{ ...skillDotStyle, backgroundColor: COLORS.grey }}></div>
-          )
-        )}
-      </div>
-    )
-  },
-}))
+const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
+  skills.map((item) => ({
+    title: item,
+    width: 120,
+    render: ({ personSkills }: TPersonData) => {
+      const skillLevel = personSkills.find((personSkill) => personSkill?.skill?.name === item)?.level ?? 0
+      const originalDots = Array.from({ length: 5 }).fill(false)
+      const skillDots = originalDots.fill(true, 0, skillLevel)
 
-const columns: ColumnsType<any> = [
+      return (
+        <div css={{ display: 'flex', gap: 5 }}>
+          {skillDots.map((item, index) =>
+            item ? (
+              <div key={index} css={skillDotStyle}></div>
+            ) : (
+              <div key={index} css={{ ...skillDotStyle, backgroundColor: COLORS.grey }}></div>
+            )
+          )}
+        </div>
+      )
+    },
+  }))
+
+const columns: ColumnsType<TPersonData> = [
   {
     title: 'Full Name',
     width: 190,
@@ -61,23 +63,22 @@ const columns: ColumnsType<any> = [
     },
   },
   { title: 'Email', dataIndex: 'email', width: 200 },
-  ...renderSkillColumns,
   // { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
 ]
 
 const EmployeesPage = () => {
-  const persons = trpc.findManyPerson.useQuery({
-    include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
-  })
-  console.log(persons.data)
+  const skills = trpc.findManySkill.useQuery({})
+  const persons = trpc.findManyPerson.useQuery({})
+
   return (
     <PageLayout title="Employee">
       {/* <Table
         style={{ width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)` }}
-        columns={columns}
+        columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
         dataSource={persons?.data}
         scroll={{ x: 100 }}
         rowKey="email"
+        loading={skills.isLoading || persons.isLoading}
       /> */}
     </PageLayout>
   )
