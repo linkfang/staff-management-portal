@@ -45,7 +45,6 @@ const columns: ColumnsType<any> = [
     width: 220,
     render: ({ expertise }) => <>{expertise.map((item: any) => item.name).join(', ')}</>,
   },
-  // TODO: Need to add projects back later on when we have some projects data in db
   {
     title: 'Projects',
     width: 85,
