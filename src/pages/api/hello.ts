@@ -7,9 +7,5 @@ type Data = {
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  prisma.person
-    .findMany({ include: { expertise: { where: { name: 'Web Frontend' } } } })
-    .then((res) => console.log(res[0].expertise))
-
   res.status(200).json({ name: 'John Doe' })
 }
