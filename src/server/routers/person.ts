@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import {
   PersonCreateManySchema,
   PersonCreateOneSchema,
@@ -39,7 +40,42 @@ export const personRouter = router({
     const findManyPerson = await ctx.prisma.person.findMany({
       include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
     })
-    return findManyPerson
+    return findManyPerson.map((person) => {
+      type TProjectsRaw = (typeof person.projects)[0]
+      type TProjectsFormatted = {
+        pending: TProjectsRaw[]
+        onGoing: TProjectsRaw[]
+        completed: TProjectsRaw[]
+        totalAmount: number
+      }
+
+      const newProjects: TProjectsFormatted = {
+        pending: [],
+        onGoing: [],
+        completed: [],
+        totalAmount: person.projects.length,
+      }
+
+      for (let i = 0; i < person.projects.length; i++) {
+        const project = person.projects[i]
+        if (dayjs().isAfter(project.endDate)) {
+          newProjects.completed.push(project)
+          continue
+        }
+
+        if (dayjs().isSameOrAfter(project.startDate) && dayjs().isSameOrBefore(project.endDate)) {
+          newProjects.onGoing.push(project)
+          continue
+        }
+
+        if (dayjs().isBefore(project.startDate)) newProjects.pending.push(project)
+      }
+
+      return {
+        ...person,
+        projects: newProjects,
+      }
+    })
   }),
   findUniquePerson: procedure.input(PersonFindUniqueSchema).query(async ({ ctx, input }) => {
     const findUniquePerson = await ctx.prisma.person.findUnique(input)
