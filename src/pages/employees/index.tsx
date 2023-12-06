@@ -8,7 +8,6 @@ import { ColumnsType, TablePaginationConfig } from 'antd/es/table'
 
 /* Styles */
 const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }
-const tableHeight = 'calc(100vh - 260px)'
 
 /* Types */
 type TPersonData = RouterOutput['findManyPerson'][0]
@@ -27,14 +26,14 @@ const columns: ColumnsType<TPersonData> = [
     title: 'Full Name',
     width: 190,
     fixed: 'left',
-    render: (item) => `${item.preferredName || item.firstName} ${item.lastName}`,
+    render: (item: TPersonData) => `${item.preferredName || item.firstName} ${item.lastName}`,
   },
   { title: 'Title', dataIndex: 'title', width: 200, sorter: (a, b) => a.title.localeCompare(b.title) },
   {
     title: 'Expertise',
     width: 220,
     sorter: (a, b) => a.expertise[0]?.name.localeCompare(b.expertise[0]?.name),
-    render: ({ expertise }) => <>{expertise.map((item: any) => item.name).join(', ')}</>,
+    render: ({ expertise }: TPersonData) => <>{expertise.map((item: any) => item.name).join(', ')}</>,
   },
   {
     title: 'Projects',
@@ -57,7 +56,7 @@ const columns: ColumnsType<TPersonData> = [
     ),
   },
   { title: 'Email', dataIndex: 'email', width: 240 },
-  { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
+  // { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
 ]
 
 /* Functions */
@@ -100,19 +99,19 @@ const EmployeesPage = () => {
 
   return (
     <PageLayout title="Employees">
-      <Table
-        style={{
+      {/* <Table
+        css={{
           width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)`,
-          height: tableHeight,
+          height: SIZES.tableHeightL,
         }}
         showSorterTooltip={false}
         pagination={paginationConfig}
         columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
         dataSource={persons?.data}
-        scroll={{ x: 100, y: tableHeight }}
+        scroll={{ x: 100, y: SIZES.tableHeightL }}
         rowKey="email"
         loading={skills.isLoading || persons.isLoading}
-      />
+      /> */}
     </PageLayout>
   )
 }
