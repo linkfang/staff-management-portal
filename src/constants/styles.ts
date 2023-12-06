@@ -9,6 +9,6 @@ export const COLORS = {
 } as const
 
 export const SIZES = {
-  navMenuExpand: 260,
+  navMenuExpand: 200,
   bodyPaddingHorizontal: 45,
 } as const

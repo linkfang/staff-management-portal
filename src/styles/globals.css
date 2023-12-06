@@ -11,3 +11,7 @@ h5,
 p {
   margin: 0;
 }
+
+ul.ant-pagination > li.ant-pagination-total-text {
+  flex: 1;
+}
