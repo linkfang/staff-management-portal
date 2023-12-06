@@ -57,7 +57,7 @@ const activeDecorationStyle: TEmotionCSS = {
 
 const menuItemStyle: TEmotionCSS = {
   position: 'relative',
-  padding: '20px 0 20px 50px',
+  padding: '20px 0 20px 35px',
   borderRadius: 5,
   textDecoration: 'none',
   color: '#3B464D',
