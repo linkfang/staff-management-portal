@@ -39,7 +39,7 @@ export const projectsRouter = router({
     const findManyProject = await ctx.prisma.project.findMany({ include: { persons: {}, skills: {}, fields: {} } })
     type TProjectRaw = (typeof findManyProject)[0]
     const renderStatus = (project: TProjectRaw) => {
-      if (dayjs().isBefore(project.startDate)) return PROJECT_STATUSES.Pending
+      if (dayjs().isBefore(project.startDate)) return PROJECT_STATUSES.Upcoming
       if (dayjs().isSameOrAfter(project.startDate) && dayjs().isSameOrBefore(project.endDate))
         return PROJECT_STATUSES['On Going']
       return PROJECT_STATUSES.Completed
