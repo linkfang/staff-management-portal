@@ -1,4 +1,5 @@
 import PageLayout from '@/components/layout/PageLayout'
+import { TABLE_PROPS } from '@/constants/componentProps'
 import { COLORS, SIZES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { trpc } from '@/utils/trpc'
@@ -13,14 +14,6 @@ const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor
 type TPersonData = RouterOutput['findManyPerson'][0]
 
 /* Constants */
-const paginationConfig: TablePaginationConfig = {
-  defaultPageSize: 15,
-  pageSizeOptions: [15, 20, 40, 80],
-  showSizeChanger: true,
-  showQuickJumper: true,
-  showTotal: (value) => <>Total {value} people</>,
-}
-
 const columns: ColumnsType<TPersonData> = [
   {
     title: 'Full Name',
@@ -45,8 +38,8 @@ const columns: ColumnsType<TPersonData> = [
       const totalA = a.projects.totalAmount
 
       // Doing all 3 conditions to make the order change as little as possible
-      if (onGoingB > onGoingA || totalB > totalA) return 1
-      if (onGoingB < onGoingA || totalB < totalA) return -1
+      if (onGoingB > onGoingA || totalB > totalA) return -1
+      if (onGoingB < onGoingA || totalB < totalA) return 1
       return 0
     },
     render: ({ projects }: TPersonData) => (
@@ -100,17 +93,11 @@ const EmployeesPage = () => {
   return (
     <PageLayout title="Employees">
       {/* <Table
-        css={{
-          width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)`,
-          height: SIZES.tableHeightL,
-        }}
-        showSorterTooltip={false}
-        pagination={paginationConfig}
+        {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
         dataSource={persons?.data}
-        scroll={{ x: 100, y: SIZES.tableHeightL }}
-        rowKey="email"
         loading={skills.isLoading || persons.isLoading}
+        rowKey="email"
       /> */}
     </PageLayout>
   )

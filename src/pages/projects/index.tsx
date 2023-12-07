@@ -1,4 +1,5 @@
 import PageLayout from '@/components/layout/PageLayout'
+import { TABLE_PROPS } from '@/constants/componentProps'
 import { DATA_FORMAT_STRINGS, PROJECT_STATUSES } from '@/constants/general'
 import { SIZES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
@@ -20,11 +21,12 @@ const statusToColorObj: Record<keyof typeof PROJECT_STATUSES, string> = {
 } as const
 
 const columns: ColumnsType<TProjectData> = [
-  { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left' },
-  { title: 'Customer', dataIndex: 'customer', width: 200 },
+  { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left', ellipsis: true },
+  { title: 'Customer', dataIndex: 'customer', width: 220, ellipsis: true },
   {
     title: 'Status',
     width: 100,
+    sorter: (a, b) => a.status.localeCompare(b.status),
     // render: ({ status }: TProjectData) => (
     //   <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
     //     {status}
@@ -33,13 +35,15 @@ const columns: ColumnsType<TProjectData> = [
   },
   {
     title: 'Start Date',
-    width: 110,
+    width: 120,
+    sorter: (a, b) => a.startDate.localeCompare(b.startDate),
     render: ({ startDate }: TProjectData) => renderMonoDateLabel(startDate),
   },
   {
     title: 'End Date',
     dataIndex: 'endDate',
-    width: 110,
+    width: 120,
+    sorter: (a, b) => a.endDate.localeCompare(b.endDate),
     render: ({ endDate }: TProjectData) => renderMonoDateLabel(endDate),
   },
   { title: 'Description', dataIndex: 'description', width: 200, ellipsis: true },
@@ -58,6 +62,7 @@ const columns: ColumnsType<TProjectData> = [
   {
     title: 'Team Members',
     width: 180,
+    ellipsis: true,
     render: ({ persons }: TProjectData) => (
       <>{persons.map((person) => person.preferredName || person.firstName).join(', ')}</>
     ),
@@ -79,14 +84,11 @@ const ProjectsPage = () => {
   return (
     <PageLayout title="Projects">
       {/* <Table
-        css={{
-          width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)`,
-          height: SIZES.tableHeightL,
-        }}
-        scroll={{ x: 100, y: SIZES.tableHeightL }}
+        {...TABLE_PROPS({ showTotalLabel: 'projects' })}
         columns={columns}
         dataSource={data ?? []}
         loading={isLoading}
+        rowKey="name"
       /> */}
     </PageLayout>
   )
