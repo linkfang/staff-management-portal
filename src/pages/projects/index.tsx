@@ -1,4 +1,5 @@
 import PageLayout from '@/components/layout/PageLayout'
+import { TABLE_PROPS } from '@/constants/componentProps'
 import { DATA_FORMAT_STRINGS, PROJECT_STATUSES } from '@/constants/general'
 import { SIZES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
@@ -78,16 +79,7 @@ const ProjectsPage = () => {
   const { data, isLoading } = trpc.findManyProject.useQuery({})
   return (
     <PageLayout title="Projects">
-      {/* <Table
-        css={{
-          width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)`,
-          height: SIZES.tableHeightL,
-        }}
-        scroll={{ x: 100, y: SIZES.tableHeightL }}
-        columns={columns}
-        dataSource={data ?? []}
-        loading={isLoading}
-      /> */}
+      {/* <Table {...TABLE_PROPS} columns={columns} dataSource={data ?? []} loading={isLoading} rowKey="name" /> */}
     </PageLayout>
   )
 }
