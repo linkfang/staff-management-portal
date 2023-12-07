@@ -1,8 +1,7 @@
 import { COLORS } from '@/constants/styles'
 import { trpc } from '@/utils/trpc'
-import { CheckOutlined, ClockCircleOutlined, DesktopOutlined } from '@ant-design/icons'
-
 import ProjectStateCard from './ProjectStateCard'
+import { CheckOutlined, ClockCircleOutlined, DesktopOutlined } from '@ant-design/icons'
 
 function MyProjectsSection() {
   const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(
