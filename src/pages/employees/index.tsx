@@ -38,8 +38,8 @@ const columns: ColumnsType<TPersonData> = [
       const totalA = a.projects.totalAmount
 
       // Doing all 3 conditions to make the order change as little as possible
-      if (onGoingB > onGoingA || totalB > totalA) return 1
-      if (onGoingB < onGoingA || totalB < totalA) return -1
+      if (onGoingB > onGoingA || totalB > totalA) return -1
+      if (onGoingB < onGoingA || totalB < totalA) return 1
       return 0
     },
     render: ({ projects }: TPersonData) => (
@@ -93,7 +93,7 @@ const EmployeesPage = () => {
   return (
     <PageLayout title="Employees">
       {/* <Table
-        {...TABLE_PROPS}
+        {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
         dataSource={persons?.data}
         loading={skills.isLoading || persons.isLoading}

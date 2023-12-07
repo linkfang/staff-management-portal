@@ -1,6 +1,8 @@
 import { SIZES } from './styles'
 
-export const TABLE_PROPS = {
+type TTableProps = { showTotalLabel?: string }
+
+export const TABLE_PROPS = ({ showTotalLabel }: TTableProps) => ({
   css: {
     width: `calc(100vw - ${SIZES.bodyPaddingHorizontal * 2 + SIZES.navMenuExpand + 30}px)`,
     height: SIZES.tableHeightL,
@@ -12,6 +14,10 @@ export const TABLE_PROPS = {
     pageSizeOptions: [15, 20, 40, 80],
     showSizeChanger: true,
     showQuickJumper: true,
-    showTotal: (value: number) => <>Total {value} people</>,
+    showTotal: (value: number) => (
+      <>
+        Total {value} {showTotalLabel ?? 'items'}
+      </>
+    ),
   },
-}
+})

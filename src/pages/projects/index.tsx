@@ -21,11 +21,12 @@ const statusToColorObj: Record<keyof typeof PROJECT_STATUSES, string> = {
 } as const
 
 const columns: ColumnsType<TProjectData> = [
-  { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left' },
-  { title: 'Customer', dataIndex: 'customer', width: 200 },
+  { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left', ellipsis: true },
+  { title: 'Customer', dataIndex: 'customer', width: 220, ellipsis: true },
   {
     title: 'Status',
     width: 100,
+    sorter: (a, b) => a.status.localeCompare(b.status),
     // render: ({ status }: TProjectData) => (
     //   <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
     //     {status}
@@ -34,13 +35,15 @@ const columns: ColumnsType<TProjectData> = [
   },
   {
     title: 'Start Date',
-    width: 110,
+    width: 120,
+    sorter: (a, b) => a.startDate.localeCompare(b.startDate),
     render: ({ startDate }: TProjectData) => renderMonoDateLabel(startDate),
   },
   {
     title: 'End Date',
     dataIndex: 'endDate',
-    width: 110,
+    width: 120,
+    sorter: (a, b) => a.endDate.localeCompare(b.endDate),
     render: ({ endDate }: TProjectData) => renderMonoDateLabel(endDate),
   },
   { title: 'Description', dataIndex: 'description', width: 200, ellipsis: true },
@@ -59,6 +62,7 @@ const columns: ColumnsType<TProjectData> = [
   {
     title: 'Team Members',
     width: 180,
+    ellipsis: true,
     render: ({ persons }: TProjectData) => (
       <>{persons.map((person) => person.preferredName || person.firstName).join(', ')}</>
     ),
@@ -79,7 +83,13 @@ const ProjectsPage = () => {
   const { data, isLoading } = trpc.findManyProject.useQuery({})
   return (
     <PageLayout title="Projects">
-      {/* <Table {...TABLE_PROPS} columns={columns} dataSource={data ?? []} loading={isLoading} rowKey="name" /> */}
+      {/* <Table
+        {...TABLE_PROPS({ showTotalLabel: 'projects' })}
+        columns={columns}
+        dataSource={data ?? []}
+        loading={isLoading}
+        rowKey="name"
+      /> */}
     </PageLayout>
   )
 }
