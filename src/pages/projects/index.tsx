@@ -15,7 +15,7 @@ const renderMonoDateLabel = (date: string) => (
 )
 
 const statusToColorObj: Record<keyof typeof PROJECT_STATUSES, string> = {
-  Pending: 'purple',
+  Upcoming: 'purple',
   'On Going': 'blue',
   Completed: 'green',
 } as const

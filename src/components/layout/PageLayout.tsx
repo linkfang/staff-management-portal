@@ -51,7 +51,7 @@ const avatarStyle = {
 }
 
 const mainStyle = {
-  marginBottom: 25,
+  marginBottom: 30,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',

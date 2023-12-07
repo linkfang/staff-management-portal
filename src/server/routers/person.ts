@@ -43,14 +43,14 @@ export const personRouter = router({
     return findManyPerson.map((person) => {
       type TProjectsRaw = (typeof person.projects)[0]
       type TProjectsFormatted = {
-        pending: TProjectsRaw[]
+        upcoming: TProjectsRaw[]
         onGoing: TProjectsRaw[]
         completed: TProjectsRaw[]
         totalAmount: number
       }
 
       const newProjects: TProjectsFormatted = {
-        pending: [],
+        upcoming: [],
         onGoing: [],
         completed: [],
         totalAmount: person.projects.length,
@@ -68,7 +68,7 @@ export const personRouter = router({
           continue
         }
 
-        if (dayjs().isBefore(project.startDate)) newProjects.pending.push(project)
+        if (dayjs().isBefore(project.startDate)) newProjects.upcoming.push(project)
       }
 
       return {

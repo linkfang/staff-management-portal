@@ -3,7 +3,7 @@ export const DATA_FORMAT_STRINGS = {
 } as const
 
 export const PROJECT_STATUSES = {
-  Pending: 'Pending',
+  Upcoming: 'Upcoming',
   'On Going': 'On Going',
   Completed: 'Completed',
 } as const
