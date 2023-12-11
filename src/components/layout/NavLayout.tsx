@@ -91,7 +91,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div css={{ display: 'flex', height: '100svh', backgroundColor: COLORS.bgColor }}>
+      <div css={{ display: 'flex', height: '100svh' }}>
         <nav css={navMenuStyle}>
           <i css={{ textAlign: 'center', height: 62 }}>Logo</i>
 
