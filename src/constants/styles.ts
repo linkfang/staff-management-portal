@@ -13,6 +13,6 @@ export const COLORS = {
 export const SIZES = {
   navMenuExpand: 200,
   bodyPaddingHorizontal: 45,
-  tableHeightL: 'calc(100vh - 260px)',
+  tableHeightL: 'calc(100vh - 280px)',
   borderRadius: 10,
 } as const

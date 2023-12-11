@@ -62,7 +62,7 @@ const PageLayout = ({ title, children }: TPageLayout) => {
   return (
     <>
       <Head>
-        <title>{title} | Staff Management</title>
+        <title>{`${title} | Staff Management`}</title>
       </Head>
 
       <section css={mainStyle}>

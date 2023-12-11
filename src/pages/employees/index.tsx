@@ -1,11 +1,11 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
-import { COLORS, SIZES } from '@/constants/styles'
+import { COLORS } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { trpc } from '@/utils/trpc'
 
 import { Button, Table } from 'antd'
-import { ColumnsType, TablePaginationConfig } from 'antd/es/table'
+import { ColumnsType } from 'antd/es/table'
 
 /* Styles */
 const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }
