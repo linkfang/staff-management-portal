@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/styles'
 import { BellOutlined, CaretDownOutlined } from '@ant-design/icons'
 import { css } from '@emotion/react'
-import { Avatar, Dropdown } from 'antd'
+import { Dropdown } from 'antd'
 import Head from 'next/head'
 import { ReactNode } from 'react'
 
@@ -70,14 +70,14 @@ const PageLayout = ({ title, children }: TPageLayout) => {
 
         <div css={{ display: 'flex', gap: 40 }}>
           <BellOutlined css={{ fontSize: 24, color: COLORS.textBlack }} />
-          {/* <Dropdown menu={{ items: avatarMenuItems }} trigger={['hover']} css={{ backgroundColor: 'transparent' }}>
+          <Dropdown menu={{ items: avatarMenuItems }} trigger={['hover']} css={{ backgroundColor: 'transparent' }}>
             <button css={dropDownBtnStyle}>
               <div css={avatarStyle}>JG</div>
               <CaretDownOutlined
                 css={{ fontSize: 12, position: 'absolute', top: 20, right: 0, transition: '0.2s 0.15s ease-out' }}
               />
             </button>
-          </Dropdown> */}
+          </Dropdown>
         </div>
       </section>
 
