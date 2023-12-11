@@ -1,12 +1,12 @@
-import { COLORS } from '@/constants/styles'
+import { COLORS, SIZES } from '@/constants/styles'
 import { BellOutlined, CaretDownOutlined } from '@ant-design/icons'
-import { css } from '@emotion/react'
+import { type SerializedStyles, css } from '@emotion/react'
 import { Dropdown } from 'antd'
 import Head from 'next/head'
 import { ReactNode } from 'react'
 
 /* Types */
-type TPageLayout = { title: string; children: ReactNode }
+type TPageLayout = { title: string; children: ReactNode; style?: SerializedStyles }
 
 /* Constants */
 const avatarMenuItems = [
@@ -58,7 +58,7 @@ const mainStyle = {
 }
 
 /* Component */
-const PageLayout = ({ title, children }: TPageLayout) => {
+const PageLayout = ({ title, children, style }: TPageLayout) => {
   return (
     <>
       <Head>
@@ -81,7 +81,7 @@ const PageLayout = ({ title, children }: TPageLayout) => {
         </div>
       </section>
 
-      <section>{children}</section>
+      <section css={style}>{children}</section>
     </>
   )
 }

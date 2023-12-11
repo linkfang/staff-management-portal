@@ -1,3 +1,5 @@
+import { css } from '@emotion/react'
+
 export const COLORS = {
   primary: '#0072BA',
   primaryHighlight: '#edf5fa',
@@ -15,4 +17,19 @@ export const SIZES = {
   bodyPaddingHorizontal: 45,
   tableHeightL: 'calc(100vh - 280px)',
   borderRadius: 10,
+  pageWidth: `calc(100vw - 90px - 200px - 30px)`,
 } as const
+
+export const STYLES = {
+  cardCtn: css({
+    backgroundColor: '#fff',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 15,
+    boxShadow: '0px 0px 20px rgba(0,0,0,0.1)',
+    padding: '30px 40px',
+    borderRadius: SIZES.borderRadius,
+  }),
+  sectionTitle: css({ color: COLORS.textGrey, marginBottom: 25 }),
+}
