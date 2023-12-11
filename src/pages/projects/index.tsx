@@ -1,7 +1,6 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { DATA_FORMAT_STRINGS, PROJECT_STATUSES } from '@/constants/general'
-import { SIZES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { trpc } from '@/utils/trpc'
 import { Button, Table, Tag } from 'antd'

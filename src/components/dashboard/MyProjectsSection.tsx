@@ -29,7 +29,7 @@ function MyProjectsSection() {
 
   return (
     <div css={{ display: 'flex', flexDirection: 'column', gap: 25 }}>
-      <h2 css={{ color: COLORS.textGrey, fontSize: 24 }}>MY PROJECTS</h2>
+      <h2 css={{ color: COLORS.textGrey, fontSize: 24 }}>PROJECTS OVERVIEW</h2>
       <div css={{ display: 'flex', gap: 30 }}>
         {[
           {

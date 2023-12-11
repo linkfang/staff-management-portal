@@ -2,6 +2,7 @@
   "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
   "plugins": ["prettier"],
   "rules": {
+    "no-unused-vars":"warn",
     "prettier/prettier": [
       "error",
       {

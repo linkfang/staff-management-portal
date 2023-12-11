@@ -36,7 +36,7 @@ const ProjectStateCard = ({ title, number = 0, icon, color, isLoading = true }: 
     <div css={cardCtnStyle}>
       <h3 css={{ color: COLORS.textBlack, fontWeight: 100, fontSize: 20 }}>{title}</h3>
       <div css={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <p css={{ fontSize: 48, fontWeight: 700, color }}>{isLoading ? <Spin /> : number}</p>
+        {isLoading ? <Spin /> : <p css={{ fontSize: 48, fontWeight: 700, color }}>{number}</p>}
         <div css={iconStyle(color)}>{icon}</div>
       </div>
     </div>
