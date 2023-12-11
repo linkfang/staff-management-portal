@@ -30,7 +30,7 @@ function MyProjectsSection() {
   return (
     <div css={{ display: 'flex', flexDirection: 'column', gap: 25 }}>
       <h2 css={{ color: COLORS.textGrey, fontSize: 24 }}>MY PROJECTS</h2>
-      {/* <div css={{ display: 'flex', gap: 30 }}>
+      <div css={{ display: 'flex', gap: 30 }}>
         {[
           {
             title: 'Working Projects',
@@ -53,7 +53,7 @@ function MyProjectsSection() {
         ].map(({ title, color, number, icon }) => (
           <ProjectStateCard key={title} title={title} color={color} number={number} icon={icon} isLoading={isLoading} />
         ))}
-      </div> */}
+      </div>
     </div>
   )
 }

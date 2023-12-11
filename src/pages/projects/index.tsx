@@ -27,11 +27,11 @@ const columns: ColumnsType<TProjectData> = [
     title: 'Status',
     width: 100,
     sorter: (a, b) => a.status.localeCompare(b.status),
-    // render: ({ status }: TProjectData) => (
-    //   <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
-    //     {status}
-    //   </Tag>
-    // ),
+    render: ({ status }: TProjectData) => (
+      <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
+        {status}
+      </Tag>
+    ),
   },
   {
     title: 'Start Date',
@@ -70,12 +70,12 @@ const columns: ColumnsType<TProjectData> = [
   {
     title: 'Action',
     width: 180,
-    // render: () => (
-    //   <div css={{ display: 'flex', gap: 10 }}>
-    //     <Button>Edit</Button>
-    //     <Button>Delete</Button>
-    //   </div>
-    // ),
+    render: () => (
+      <div css={{ display: 'flex', gap: 10 }}>
+        <Button>Edit</Button>
+        <Button>Delete</Button>
+      </div>
+    ),
   },
 ]
 
@@ -83,13 +83,13 @@ const ProjectsPage = () => {
   const { data, isLoading } = trpc.findManyProject.useQuery({})
   return (
     <PageLayout title="Projects">
-      {/* <Table
+      <Table
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
         columns={columns}
         dataSource={data ?? []}
         loading={isLoading}
         rowKey="name"
-      /> */}
+      />
     </PageLayout>
   )
 }

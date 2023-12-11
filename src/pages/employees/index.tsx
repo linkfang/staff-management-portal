@@ -49,7 +49,7 @@ const columns: ColumnsType<TPersonData> = [
     ),
   },
   { title: 'Email', dataIndex: 'email', width: 240 },
-  // { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
+  { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
 ]
 
 /* Functions */
@@ -92,13 +92,13 @@ const EmployeesPage = () => {
 
   return (
     <PageLayout title="Employees">
-      {/* <Table
+      <Table
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
         dataSource={persons?.data}
         loading={skills.isLoading || persons.isLoading}
         rowKey="email"
-      /> */}
+      />
     </PageLayout>
   )
 }
