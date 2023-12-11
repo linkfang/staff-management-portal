@@ -1,9 +1,9 @@
-import { COLORS } from '@/constants/styles'
+import { COLORS, STYLES } from '@/constants/styles'
 import { trpc } from '@/utils/trpc'
 import ProjectStateCard from './ProjectStateCard'
 import { CheckOutlined, ClockCircleOutlined, DesktopOutlined } from '@ant-design/icons'
 
-function MyProjectsSection() {
+function ProjectsOverviewSection() {
   const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(
     {},
     {
@@ -28,8 +28,8 @@ function MyProjectsSection() {
   )
 
   return (
-    <div css={{ display: 'flex', flexDirection: 'column', gap: 25 }}>
-      <h2 css={{ color: COLORS.textGrey, fontSize: 24 }}>PROJECTS OVERVIEW</h2>
+    <div>
+      <h2 css={STYLES.sectionTitle}>PROJECTS OVERVIEW</h2>
       <div css={{ display: 'flex', gap: 30 }}>
         {[
           {
@@ -58,4 +58,4 @@ function MyProjectsSection() {
   )
 }
 
-export default MyProjectsSection
+export default ProjectsOverviewSection

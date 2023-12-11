@@ -1,4 +1,4 @@
-import { COLORS, SIZES } from '@/constants/styles'
+import { COLORS, STYLES } from '@/constants/styles'
 import { css } from '@emotion/react'
 import { Spin } from 'antd'
 
@@ -9,16 +9,6 @@ type TProjectStateCardProps = {
   color: string
   isLoading: boolean
 }
-
-const cardCtnStyle = css({
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 15,
-  boxShadow: '0px 0px 20px rgba(0,0,0,0.1)',
-  padding: '30px 40px',
-  borderRadius: SIZES.borderRadius,
-})
 
 const iconStyle = (color: string) =>
   css({
@@ -33,7 +23,7 @@ const iconStyle = (color: string) =>
 
 const ProjectStateCard = ({ title, number = 0, icon, color, isLoading = true }: TProjectStateCardProps) => {
   return (
-    <div css={cardCtnStyle}>
+    <div css={STYLES.cardCtn}>
       <h3 css={{ color: COLORS.textBlack, fontWeight: 100, fontSize: 20 }}>{title}</h3>
       <div css={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {isLoading ? <Spin /> : <p css={{ fontSize: 48, fontWeight: 700, color }}>{number}</p>}

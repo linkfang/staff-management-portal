@@ -28,13 +28,15 @@ const menuItems = [
 /* Styles */
 const navMenuStyle: TEmotionCSS = {
   backgroundColor: '#fff',
-  position: 'relative',
+  position: 'fixed',
   width: SIZES.navMenuExpand,
   boxShadow: '0px 0px 20px rgba(62, 80, 113, 0.1)',
   padding: '50px 15px',
   display: 'flex',
   flexDirection: 'column',
   gap: 20,
+  top: 0,
+  bottom: 0,
 }
 
 const activeItemStyle: TEmotionCSS = {
@@ -106,7 +108,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
 
           {<span css={{ ...activeDecorationStyle, top: 16 + activeDecoration }}></span>}
         </nav>
-
+        <div css={{ width: `calc(${SIZES.navMenuExpand}px + 30px)` }}></div>
         <main css={{ flex: 1, padding: `50px ${SIZES.bodyPaddingHorizontal}px` }}>{children}</main>
       </div>
     </>
