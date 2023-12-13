@@ -1,5 +1,6 @@
-export const DATA_FORMAT_STRINGS = {
+export const DATE_FORMAT_STRINGS = {
   yearMonthDay: 'YYYY-MM-DD',
+  yearMonthDayHrMin: 'YYYY-MM-DD HH:mm',
 } as const
 
 export const PROJECT_STATUSES = {

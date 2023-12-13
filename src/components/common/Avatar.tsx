@@ -13,7 +13,7 @@ const Avatar = ({ firstName, lastName, size = 42, fontSize = 16 }: TAvatarProps)
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 3,
+        gap: 2,
       }}
     >
       <span>{firstName[0]}</span>
