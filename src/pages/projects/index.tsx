@@ -1,6 +1,6 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
-import { DATA_FORMAT_STRINGS, PROJECT_STATUSES } from '@/constants/general'
+import { DATE_FORMAT_STRINGS, PROJECT_STATUSES } from '@/constants/general'
 import { RouterOutput } from '@/type/general'
 import { trpc } from '@/utils/trpc'
 import { Button, Table, Tag } from 'antd'
@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 type TProjectData = RouterOutput['findManyProject'][0]
 
 const renderMonoDateLabel = (date: string) => (
-  <span css={{ fontFamily: 'monospace' }}>{dayjs(date).format(DATA_FORMAT_STRINGS.yearMonthDay)}</span>
+  <span css={{ fontFamily: 'monospace' }}>{dayjs(date).format(DATE_FORMAT_STRINGS.yearMonthDay)}</span>
 )
 
 const statusToColorObj: Record<keyof typeof PROJECT_STATUSES, string> = {

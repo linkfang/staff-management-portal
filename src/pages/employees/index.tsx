@@ -1,11 +1,13 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
+import { ALL_PATHS } from '@/constants/general'
 import { COLORS } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { trpc } from '@/utils/trpc'
 
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
+import Link from 'next/link'
 
 /* Styles */
 const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }
@@ -19,7 +21,11 @@ const columns: ColumnsType<TPersonData> = [
     title: 'Full Name',
     width: 190,
     fixed: 'left',
-    render: (item: TPersonData) => `${item.preferredName || item.firstName} ${item.lastName}`,
+    render: (item: TPersonData) => (
+      <Link href={ALL_PATHS.employeeWithID(item.id)}>
+        {item.preferredName || item.firstName} {item.lastName}
+      </Link>
+    ),
   },
   { title: 'Title', dataIndex: 'title', width: 200, sorter: (a, b) => a.title.localeCompare(b.title) },
   {

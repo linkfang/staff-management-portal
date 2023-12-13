@@ -32,12 +32,18 @@ export const personRouter = router({
   }),
   findFirstPerson: procedure.input(PersonFindFirstSchema).query(async ({ ctx, input }) => {
     const findFirstPerson = await ctx.prisma.person.findFirst({
-      include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
+      ...input,
+      include: {
+        expertise: {},
+        personSkills: { include: { skill: {} } },
+        projects: {},
+      },
     })
     return findFirstPerson
   }),
   findManyPerson: procedure.input(PersonFindManySchema).query(async ({ ctx, input }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
+      ...input,
       include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
     })
     return findManyPerson.map((person) => {
