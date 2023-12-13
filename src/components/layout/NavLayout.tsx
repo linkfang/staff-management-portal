@@ -73,6 +73,10 @@ const menuItemStyle: TEmotionCSS = {
   },
 }
 
+/* Utils */
+const includePath = (pathname: string, href: string) =>
+  (pathname.includes(href) && href.length > 1) || pathname === href ? true : false
+
 /* Component */
 const NavLayout = ({ children }: { children: ReactNode }) => {
   const { pathname } = useRouter()
@@ -95,14 +99,14 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         <nav css={navMenuStyle}>
           <i css={{ textAlign: 'center', height: 62 }}>Logo</i>
 
-          {menuItems.map((item) => (
+          {menuItems.map(({ href, icon, label }) => (
             <Link
-              key={item.href}
-              href={item.href}
-              css={item.href === pathname ? { ...menuItemStyle, ...activeItemStyle } : menuItemStyle}
-              ref={item.href === pathname ? activeItemRef : null}
+              key={href}
+              href={href}
+              css={includePath(pathname, href) ? { ...menuItemStyle, ...activeItemStyle } : menuItemStyle}
+              ref={includePath(pathname, href) ? activeItemRef : null}
             >
-              {item.icon(22)} {item.label}
+              {icon(22)} {label}
             </Link>
           ))}
 
