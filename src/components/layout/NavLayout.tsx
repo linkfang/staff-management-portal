@@ -5,21 +5,22 @@ import { COLORS, SIZES } from '@/constants/styles'
 import { useRouter } from 'next/router'
 import { TEmotionCSS } from '@/type/general'
 import Head from 'next/head'
+import { ALL_PATHS } from '@/constants/general'
 
 /* Constants */
 const menuItems = [
   {
-    href: '/',
+    href: ALL_PATHS.home,
     label: 'Home',
     icon: (iconSize: number) => <HomeOutlined css={{ fontSize: iconSize }} />,
   },
   {
-    href: '/employees',
+    href: ALL_PATHS.employees,
     label: 'Employees',
     icon: (iconSize: number) => <UserOutlined css={{ fontSize: iconSize }} />,
   },
   {
-    href: '/projects',
+    href: ALL_PATHS.projects,
     label: 'Projects',
     icon: (iconSize: number) => <ProjectOutlined css={{ fontSize: iconSize }} />,
   },

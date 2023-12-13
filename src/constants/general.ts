@@ -7,3 +7,11 @@ export const PROJECT_STATUSES = {
   'On Going': 'On Going',
   Completed: 'Completed',
 } as const
+
+export const ALL_PATHS = {
+  home: '/',
+  employees: '/employees',
+  employeeWithID: (id: string | number) => `/employees/${id}`,
+  projects: '/projects',
+  projectWithID: (id: string | number) => `/projects/${id}`,
+}
