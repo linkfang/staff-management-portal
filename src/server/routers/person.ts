@@ -36,7 +36,7 @@ export const personRouter = router({
       ...input,
       include: {
         expertise: {},
-        personSkills: { include: { skill: {} } },
+        personSkills: { include: { skill: { include: { field: {} } } } },
         projects: {},
       },
     })

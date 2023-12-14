@@ -33,4 +33,5 @@ export const STYLES = {
     borderRadius: SIZES.borderRadius,
   }),
   sectionTitle: css({ color: COLORS.textGrey, marginBottom: 25 }),
+  skillDot: css({ height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }),
 }
