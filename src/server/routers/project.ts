@@ -12,7 +12,7 @@ import {
   ProjectUpsertSchema,
 } from '../schemas'
 import { procedure, router } from '../trpc'
-import { PROJECT_STATUSES } from '@/constants/general'
+import { renderProjectStatus } from '@/utils/general'
 
 export const projectsRouter = router({
   createManyProject: procedure.input(ProjectCreateManySchema).mutation(async ({ ctx, input }) => {
@@ -37,16 +37,9 @@ export const projectsRouter = router({
   }),
   findManyProject: procedure.input(ProjectFindManySchema).query(async ({ ctx, input }) => {
     const findManyProject = await ctx.prisma.project.findMany({ include: { persons: {}, skills: {}, fields: {} } })
-    type TProjectRaw = (typeof findManyProject)[0]
-    const renderStatus = (project: TProjectRaw) => {
-      if (dayjs().isBefore(project.startDate)) return PROJECT_STATUSES.Upcoming
-      if (dayjs().isSameOrAfter(project.startDate) && dayjs().isSameOrBefore(project.endDate))
-        return PROJECT_STATUSES['On Going']
-      return PROJECT_STATUSES.Completed
-    }
     return findManyProject.map((project) => ({
       ...project,
-      status: renderStatus(project),
+      status: renderProjectStatus(project),
     }))
   }),
   findUniqueProject: procedure.input(ProjectFindUniqueSchema).query(async ({ ctx, input }) => {

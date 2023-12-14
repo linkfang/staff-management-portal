@@ -1,4 +1,4 @@
-type TAvatarProps = { firstName: string; lastName: string; size?: number; fontSize?: number }
+type TAvatarProps = { firstName?: string; lastName?: string; size?: number; fontSize?: number }
 
 const Avatar = ({ firstName, lastName, size = 42, fontSize = 16 }: TAvatarProps) => {
   return (
@@ -16,8 +16,8 @@ const Avatar = ({ firstName, lastName, size = 42, fontSize = 16 }: TAvatarProps)
         gap: 2,
       }}
     >
-      <span>{firstName[0]}</span>
-      <span>{lastName[0]}</span>
+      <span>{firstName?.[0] ?? ''}</span>
+      <span>{lastName?.[0] ?? ''}</span>
     </div>
   )
 }

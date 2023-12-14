@@ -16,3 +16,9 @@ export const ALL_PATHS = {
   projects: '/projects',
   projectWithID: (id: string | number) => `/projects/${id}`,
 }
+
+export const statusToColorObj: Record<keyof typeof PROJECT_STATUSES, string> = {
+  Upcoming: 'purple',
+  'On Going': 'blue',
+  Completed: 'green',
+} as const
