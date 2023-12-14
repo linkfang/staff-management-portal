@@ -1,16 +1,13 @@
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
-import { COLORS } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
+import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
 import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
-
-/* Styles */
-const skillDotStyle = { height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }
 
 /* Types */
 type TPersonData = RouterOutput['findManyPerson'][0]
@@ -74,20 +71,7 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
     },
     render: ({ personSkills }: TPersonData) => {
       const skillLevel = personSkills.find((personSkill) => personSkill?.skill?.name === item)?.level ?? 0
-      const originalDots = Array.from({ length: 5 }).fill(false)
-      const skillDots = originalDots.fill(true, 0, skillLevel)
-
-      return (
-        <div css={{ display: 'flex', gap: 5 }}>
-          {skillDots.map((item, index) =>
-            item ? (
-              <div key={index} css={skillDotStyle}></div>
-            ) : (
-              <div key={index} css={{ ...skillDotStyle, backgroundColor: COLORS.grey }}></div>
-            )
-          )}
-        </div>
-      )
+      return renderSkillDots(skillLevel)
     },
   }))
 

@@ -1,5 +1,6 @@
 import Avatar from '@/components/common/Avatar'
 import InfoItem from '@/components/common/InfoItem'
+import SkillInfoSection from '@/components/employeeDetail/SkillInfoSection'
 import PageLayout from '@/components/layout/PageLayout'
 import { DATE_FORMAT_STRINGS, PROJECT_STATUSES, statusToColorObj } from '@/constants/general'
 import { COLORS, SIZES, STYLES } from '@/constants/styles'
@@ -75,7 +76,6 @@ const EmployeeDetail = () => {
       enabled: !!query?.id,
     }
   )
-  console.log(data)
 
   if (!isLoading && !data)
     return (
@@ -127,7 +127,7 @@ const EmployeeDetail = () => {
       <div css={{ flex: 1, marginTop: 25, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 25 }}>
         {/* Projects Info */}
         <div css={STYLES.cardCtn}>
-          <h2>PROJECTS</h2>
+          <h2 css={[STYLES.sectionTitle, css({ fontSize: 20 })]}>PROJECTS</h2>
           <div
             css={{
               backgroundColor: COLORS.lightblue,
@@ -150,13 +150,10 @@ const EmployeeDetail = () => {
             />
           </div>
 
-          <Table dataSource={data?.projects} columns={columns} loading={isLoading} />
+          <Table dataSource={data?.projects} columns={columns} loading={isLoading} rowKey="id" />
         </div>
 
-        {/* Skill Info */}
-        <div css={STYLES.cardCtn}>
-          <h2>SKILLS</h2>
-        </div>
+        <SkillInfoSection />
       </div>
     </PageLayout>
   )
