@@ -8,21 +8,21 @@ function ProjectsOverviewSection() {
     {},
     {
       select: (projects) => {
-        const projectStates = { upcoming: 0, ongoing: 0, completed: 0 }
+        const projectStats = { upcoming: 0, ongoing: 0, completed: 0 }
         projects.forEach((project) => {
           switch (project.status) {
             case 'Upcoming':
-              projectStates.upcoming++
+              projectStats.upcoming++
               break
             case 'On Going':
-              projectStates.ongoing++
+              projectStats.ongoing++
               break
             case 'Completed':
-              projectStates.completed++
+              projectStats.completed++
               break
           }
         })
-        return projectStates
+        return projectStats
       },
     }
   )

@@ -12,6 +12,7 @@ import {
   PersonUpsertSchema,
 } from '../schemas'
 import { procedure, router } from '../trpc'
+import { renderProjectStatus } from '@/utils/general'
 
 export const personRouter = router({
   createManyPerson: procedure.input(PersonCreateManySchema).mutation(async ({ ctx, input }) => {
@@ -39,7 +40,12 @@ export const personRouter = router({
         projects: {},
       },
     })
-    return findFirstPerson
+    const formattedProject = findFirstPerson?.projects.map((project) => ({
+      ...project,
+      status: renderProjectStatus(project),
+    }))
+
+    return { ...findFirstPerson, projects: formattedProject }
   }),
   findManyPerson: procedure.input(PersonFindManySchema).query(async ({ ctx, input }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
