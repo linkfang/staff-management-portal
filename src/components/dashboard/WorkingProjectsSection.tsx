@@ -5,12 +5,9 @@ import dayjs from 'dayjs'
 import { Empty, Spin } from 'antd'
 
 const WorkingProjectsSection = () => {
-  const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(
-    {},
-    {
-      select: (projects) => projects.filter((project) => project.status === 'On Going'),
-    }
-  )
+  const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(undefined, {
+    select: (projects) => projects.filter((project) => project.status === 'On Going'),
+  })
 
   const renderWorkingProjectsCard = () => {
     if (isLoading) {

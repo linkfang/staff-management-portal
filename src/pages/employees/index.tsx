@@ -28,7 +28,6 @@ const columns: ColumnsType<TPersonData> = [
   {
     title: 'Expertise',
     width: 220,
-    sorter: (a, b) => a.expertise[0]?.name.localeCompare(b.expertise[0]?.name),
     render: ({ expertise }: TPersonData) => <>{expertise.map((item: any) => item.name).join(', ')}</>,
   },
   {
@@ -77,8 +76,8 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
 
 /* Component */
 const EmployeesPage = () => {
-  const skills = trpc.findManySkill.useQuery({})
-  const persons = trpc.findManyPerson.useQuery({})
+  const skills = trpc.findManySkill.useQuery()
+  const persons = trpc.findManyPerson.useQuery()
 
   return (
     <PageLayout title="Employees">
