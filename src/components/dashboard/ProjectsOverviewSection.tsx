@@ -4,28 +4,25 @@ import ProjectStateCard from './ProjectStateCard'
 import { CheckOutlined, ClockCircleOutlined, DesktopOutlined } from '@ant-design/icons'
 
 function ProjectsOverviewSection() {
-  const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(
-    {},
-    {
-      select: (projects) => {
-        const projectStats = { upcoming: 0, ongoing: 0, completed: 0 }
-        projects.forEach((project) => {
-          switch (project.status) {
-            case 'Upcoming':
-              projectStats.upcoming++
-              break
-            case 'On Going':
-              projectStats.ongoing++
-              break
-            case 'Completed':
-              projectStats.completed++
-              break
-          }
-        })
-        return projectStats
-      },
-    }
-  )
+  const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(undefined, {
+    select: (projects) => {
+      const projectStats = { upcoming: 0, ongoing: 0, completed: 0 }
+      projects.forEach((project) => {
+        switch (project.status) {
+          case 'Upcoming':
+            projectStats.upcoming++
+            break
+          case 'On Going':
+            projectStats.ongoing++
+            break
+          case 'Completed':
+            projectStats.completed++
+            break
+        }
+      })
+      return projectStats
+    },
+  })
 
   return (
     <div>

@@ -2,15 +2,17 @@ import dayjs from 'dayjs'
 
 import { procedure, router } from '../trpc'
 import { renderProjectStatus } from '@/utils/general'
+import { z } from 'zod'
 
 export const personRouter = router({
-  findFirstPerson: procedure.query(async ({ ctx }) => {
+  findFirstPerson: procedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
     const findFirstPerson = await ctx.prisma.person.findFirst({
       include: {
         expertise: {},
         personSkills: { include: { skill: { include: { field: {} } } } },
         projects: {},
       },
+      where: { id: { equals: input.id } },
     })
     const formattedProject = findFirstPerson?.projects.map((project) => ({
       ...project,

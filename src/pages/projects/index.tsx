@@ -69,7 +69,7 @@ const columns: ColumnsType<TProjectData> = [
 ]
 
 const ProjectsPage = () => {
-  const { data, isLoading } = trpc.findManyProject.useQuery({})
+  const { data, isLoading } = trpc.findManyProject.useQuery()
   return (
     <PageLayout title="Projects">
       <Table

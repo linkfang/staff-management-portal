@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 const SkillInfoSection = () => {
   const { query } = useRouter()
   const { data, isLoading } = trpc.findFirstPerson.useQuery(
-    { where: { id: Number(query?.id as string) ?? 0 } },
+    { id: Number(query?.id as string) ?? 0 },
     {
       enabled: !!query?.id,
       select: (data) => {
