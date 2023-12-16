@@ -14,7 +14,7 @@ const columns: ColumnsType<TProjectData> = [
   { title: 'Customer', dataIndex: 'customer', width: 220, ellipsis: true },
   {
     title: 'Status',
-    width: 100,
+    width: 120,
     sorter: (a, b) => a.status.localeCompare(b.status),
     render: ({ status }: TProjectData) => (
       <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
