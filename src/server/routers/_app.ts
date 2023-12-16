@@ -1,18 +1,26 @@
 import { z } from 'zod'
-import { procedure, router } from '../trpc'
+import { mergeRouters, procedure, router } from '../trpc'
+import { personRouter } from './person'
+import { skillsRouter } from './skill'
+import { projectsRouter } from './project'
 
-export const appRouter = router({
-  hello: procedure
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      }
-    }),
-})
+export const appRouter = mergeRouters(
+  personRouter,
+  skillsRouter,
+  projectsRouter,
+  router({
+    hello: procedure
+      .input(
+        z.object({
+          text: z.string(),
+        })
+      )
+      .query((opts) => {
+        return {
+          greeting: `hello ${opts.input.text}`,
+        }
+      }),
+  })
+)
 
 export type AppRouter = typeof appRouter

@@ -2,6 +2,7 @@
   "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
   "plugins": ["prettier"],
   "rules": {
+    "no-unused-vars":"warn",
     "prettier/prettier": [
       "error",
       {
@@ -9,7 +10,8 @@
         "printWidth": 120,
         "singleQuote": true,
         "trailingComma": "es5",
-        "semi": false
+        "semi": false,
+        "endOfLine": "auto"
       }
     ]
   }
