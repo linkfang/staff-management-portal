@@ -27,7 +27,7 @@ function ProjectsOverviewSection() {
   return (
     <div>
       <h2 css={STYLES.sectionTitle}>PROJECTS OVERVIEW</h2>
-      <div css={{ display: 'flex', gap: 30 }}>
+      <div css={{ display: 'flex', gap: 30, flexWrap: 'wrap' }}>
         {[
           {
             title: 'Working Projects',
