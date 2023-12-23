@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { TEmotionCSS } from '@/type/general'
 import Head from 'next/head'
 import { ALL_PATHS } from '@/constants/general'
+import { css } from '@emotion/react'
 
 /* Constants */
 const menuItems = [
@@ -96,7 +97,15 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div css={{ display: 'flex', height: '100svh' }}>
+      <div
+        css={{
+          display: 'flex',
+          height: '100svh',
+          '@media(max-width: 680px)': {
+            display: 'none',
+          },
+        }}
+      >
         <nav css={navMenuStyle}>
           <i css={{ textAlign: 'center', height: 62 }}>Logo</i>
 
@@ -116,6 +125,27 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         <div css={{ width: `calc(${SIZES.navMenuExpand}px + 30px)` }}></div>
         <main css={{ flex: 1, padding: `50px ${SIZES.bodyPaddingHorizontal}px` }}>{children}</main>
       </div>
+
+      <section
+        css={css({
+          '@media(min-width: 680px)': {
+            display: 'none',
+          },
+          '@media(max-width: 680px)': {
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100svh',
+            color: COLORS.textGrey,
+            gap: 15,
+            padding: '0 20px',
+          },
+        })}
+      >
+        <h1>Oops!</h1>
+        <p>Mobile view will come later, for a better user experience please use the app in a 680px or larger screen</p>
+      </section>
     </>
   )
 }
