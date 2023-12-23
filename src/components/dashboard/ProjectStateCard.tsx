@@ -23,7 +23,7 @@ const iconStyle = (color: string) =>
 
 const ProjectStateCard = ({ title, number = 0, icon, color, isLoading = true }: TProjectStateCardProps) => {
   return (
-    <div css={STYLES.cardCtn}>
+    <div css={[STYLES.cardCtn, css({ minWidth: '255px' })]}>
       <h3 css={{ fontWeight: 100, fontSize: 20 }}>{title}</h3>
       <div css={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {isLoading ? <Spin /> : <p css={{ fontSize: 48, fontWeight: 700, color }}>{number}</p>}

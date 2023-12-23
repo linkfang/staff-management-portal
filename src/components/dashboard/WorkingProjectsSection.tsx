@@ -21,7 +21,7 @@ const WorkingProjectsSection = () => {
     if (projectsData?.length === 0) return <Empty css={{ marginTop: 30 }} />
 
     return (
-      <div css={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 30 }}>
+      <div css={{ display: 'flex', flexWrap: 'wrap', gap: 30 }}>
         {projectsData?.map(({ customer, name, startDate, endDate }) => {
           const duration = dayjs(endDate).diff(startDate)
           const timeLeft = dayjs(endDate).diff()
