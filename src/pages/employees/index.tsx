@@ -5,9 +5,10 @@ import { RouterOutput } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { Button, Table } from 'antd'
+import { Button, Form, Modal, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
+import { useState } from 'react'
 
 /* Types */
 type TPersonData = RouterOutput['findManyPerson'][0]
@@ -51,7 +52,6 @@ const columns: ColumnsType<TPersonData> = [
     ),
   },
   { title: 'Email', dataIndex: 'email', width: 240 },
-  { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
 ]
 
 /* Functions */
@@ -74,20 +74,47 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
     },
   }))
 
+// eslint-disable-next-line no-unused-vars
+const renderEditButton = (callback: (person: TPersonData) => void) => ({
+  title: 'Action',
+  width: 80,
+  render: (person: TPersonData) => <Button onClick={() => callback(person)}>Edit</Button>,
+})
+
 /* Component */
 const EmployeesPage = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedName, setSelectedName] = useState('')
+
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
+
+  const editBtnCallback = ({ firstName, lastName }: TPersonData) => {
+    setIsOpen(true)
+    setSelectedName(`${firstName} ${lastName}`)
+  }
 
   return (
     <PageLayout title="Employees">
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
-        columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
+        columns={[
+          ...columns,
+          renderEditButton(editBtnCallback),
+          ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
+        ]}
         dataSource={persons?.data}
         loading={skills.isLoading || persons.isLoading}
         rowKey="email"
       />
+      <Modal
+        title={`Edit ${selectedName}`}
+        open={isOpen}
+        centered={true}
+        onCancel={() => setIsOpen(false)}
+        onOk={() => setIsOpen(false)}
+        okText="Save"
+      ></Modal>
     </PageLayout>
   )
 }
