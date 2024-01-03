@@ -5,10 +5,13 @@ import { RouterOutput } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { Button, Form, Modal, Table } from 'antd'
+import { Button, Form, Input, Modal, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
+
+/* Styles */
+const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
 
 /* Types */
 type TPersonData = RouterOutput['findManyPerson'][0]
@@ -84,14 +87,18 @@ const renderEditButton = (callback: (person: TPersonData) => void) => ({
 /* Component */
 const EmployeesPage = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedName, setSelectedName] = useState('')
+  const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
+
+  const [editForm] = Form.useForm()
 
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
 
-  const editBtnCallback = ({ firstName, lastName }: TPersonData) => {
+  const editBtnCallback = (personData: TPersonData) => {
+    setSelectedPerson(personData)
+    editForm.setFieldsValue(personData)
+
     setIsOpen(true)
-    setSelectedName(`${firstName} ${lastName}`)
   }
 
   return (
@@ -108,13 +115,47 @@ const EmployeesPage = () => {
         rowKey="email"
       />
       <Modal
-        title={`Edit ${selectedName}`}
+        title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
         open={isOpen}
         centered={true}
         onCancel={() => setIsOpen(false)}
         onOk={() => setIsOpen(false)}
         okText="Save"
-      ></Modal>
+      >
+        <Form form={editForm} layout="vertical" initialValues={selectedPerson}>
+          <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
+            <Form.Item name="firstName" label="First Name" required>
+              <Input />
+            </Form.Item>
+
+            <Form.Item name="lastName" label="Last Name" required>
+              <Input />
+            </Form.Item>
+
+            <Form.Item name="preferredName" label="Preferred Name">
+              <Input />
+            </Form.Item>
+          </div>
+
+          <div css={formItemRow}>
+            <Form.Item name="title" label="Title" required>
+              <Input />
+            </Form.Item>
+
+            <Form.Item name="email" label="Email" required>
+              <Input />
+            </Form.Item>
+          </div>
+
+          <Form.Item name="projects" label="Projects" required>
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="expertise" label="Expertise" required>
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </PageLayout>
   )
 }

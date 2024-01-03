@@ -103,14 +103,21 @@ const EmployeeDetail = () => {
                 marginRight: 120,
               }}
             >
-              <Avatar firstName={data.firstName} lastName={data.lastName} size={78} fontSize={28} />
-              <p css={{ marginTop: 20, fontSize: 18, fontWeight: 700 }}>{data.firstName}</p>
+              <Avatar
+                firstName={data.preferredName || data.firstName}
+                lastName={data.lastName}
+                size={78}
+                fontSize={28}
+              />
+              <p css={{ marginTop: 20, fontSize: 18, fontWeight: 700 }}>{data.preferredName || data.firstName}</p>
               <p>{data.lastName}</p>
             </div>
             <div css={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 30 }}>
               <InfoItem label="Title" value={data.title} />
               <InfoItem label="Email" value={data.email} />
               <InfoItem label="Expertise" value={data.expertise?.map((item) => item.name).join(', ')} />
+              <InfoItem label="Preferred Name/First Name" value={`${data.preferredName}/${data.firstName}`} />
+
               <InfoItem
                 label="Updated at"
                 value={dayjs(data.updatedAt).format(DATE_FORMAT_STRINGS.yearMonthDayHrMin)}
