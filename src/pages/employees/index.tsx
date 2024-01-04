@@ -15,6 +15,8 @@ const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' }
 
 /* Types */
 type TPersonData = RouterOutput['findManyPerson'][0]
+type TPersonSkillsBackend = TPersonData['personSkills'][0]
+type TPersonSkills = Omit<TPersonSkillsBackend, 'createdAt' | 'updatedAt'>
 
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
@@ -97,7 +99,8 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
 /* Component */
 const EmployeesPage = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedPersonName, setSelectedPersonName] = useState('')
+  const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
+  const [personSkills, setPersonSkills] = useState<TPersonSkills[]>()
 
   const [editForm] = Form.useForm()
 
@@ -107,15 +110,25 @@ const EmployeesPage = () => {
   const expertise = trpc.findManyExpertise.useQuery()
 
   const editBtnCallback = (personData: TPersonData) => {
-    setSelectedPersonName(`${personData?.preferredName || personData?.firstName} ${personData?.lastName}`)
+    if (!personData) return
+
+    setSelectedPerson(personData)
+    setPersonSkills(personData.personSkills)
+
     editForm.setFieldsValue({
       ...personData,
       projects: renderSelectedProjects(personData),
-      expertise: personData.expertise.map((item) => ({ label: item.name, value: item.name })),
+      expertise: personData.expertise.map((item) => item.name),
+      personSkills: personData.personSkills.map((personSkill) => ({
+        label: personSkill.skill.name,
+        value: personSkill.skillId,
+      })),
     })
 
     setIsOpen(true)
   }
+
+  const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
 
   return (
     <PageLayout title="Employees">
@@ -131,14 +144,14 @@ const EmployeesPage = () => {
         rowKey="email"
       />
       <Modal
-        title={`Edit ${selectedPersonName}`}
+        title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
         open={isOpen}
         centered={true}
         onCancel={() => setIsOpen(false)}
         onOk={() => setIsOpen(false)}
         okText="Save"
       >
-        <Form form={editForm} layout="vertical">
+        <Form form={editForm} layout="vertical" css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}>
           <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
             <Form.Item name="firstName" label="First Name" required>
               <Input />
@@ -168,7 +181,7 @@ const EmployeesPage = () => {
               mode="multiple"
               allowClear
               placeholder="Select projects"
-              options={projects.data?.map((project) => ({ label: project.name, value: project.name })) ?? []}
+              options={projects.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
             />
           </Form.Item>
 
@@ -177,9 +190,49 @@ const EmployeesPage = () => {
               mode="multiple"
               allowClear
               placeholder="Select expertise"
-              options={expertise.data?.map((project) => ({ label: project.name, value: project.name })) ?? []}
+              options={expertise.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
             />
           </Form.Item>
+
+          <Form.Item name="personSkills" label="Skills">
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Select skills"
+              options={skillOptions}
+              onSelect={(_, skill) => {
+                if (!selectedPerson) return
+                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                if (!selectedSkill) return
+
+                const newSelectedSkill = {
+                  level: 1,
+                  skillId: skill.value,
+                  personId: selectedPerson.id,
+                  skill: selectedSkill,
+                }
+
+                setPersonSkills((pre) => (pre ? [...pre, newSelectedSkill] : [newSelectedSkill]))
+              }}
+              onDeselect={(_, skill) => {
+                if (!selectedPerson) return
+
+                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                if (!selectedSkill) return
+
+                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skillId !== skill.value) : []))
+              }}
+            />
+          </Form.Item>
+
+          <div css={{ display: 'flex', gap: 25, flexWrap: 'wrap' }}>
+            {personSkills?.map((item) => (
+              <div key={item.skillId}>
+                <p>{item.skill?.name}</p>
+                {renderSkillDots(item?.level)}
+              </div>
+            ))}
+          </div>
         </Form>
       </Modal>
     </PageLayout>
