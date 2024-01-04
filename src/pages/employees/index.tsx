@@ -92,7 +92,7 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
   const { projects } = personData
   return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => ({
     label: project.name,
-    value: project.name,
+    value: project.id,
   }))
 }
 
@@ -118,7 +118,7 @@ const EmployeesPage = () => {
     editForm.setFieldsValue({
       ...personData,
       projects: renderSelectedProjects(personData),
-      expertise: personData.expertise.map((item) => item.name),
+      expertise: personData.expertise.map((item) => item.id),
       personSkills: personData.personSkills.map((personSkill) => ({
         label: personSkill.skill.name,
         value: personSkill.skillId,
