@@ -5,12 +5,18 @@ import { RouterOutput } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { Button, Table } from 'antd'
+import { Button, Form, Input, Modal, Select, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
+import { useState } from 'react'
+
+/* Styles */
+const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
 
 /* Types */
 type TPersonData = RouterOutput['findManyPerson'][0]
+type TPersonSkillsBackend = TPersonData['personSkills'][0]
+type TPersonSkills = Omit<TPersonSkillsBackend, 'createdAt' | 'updatedAt'>
 
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
@@ -51,7 +57,6 @@ const columns: ColumnsType<TPersonData> = [
     ),
   },
   { title: 'Email', dataIndex: 'email', width: 240 },
-  { title: 'Action', width: 80, render: () => <Button>Edit</Button> },
 ]
 
 /* Functions */
@@ -74,20 +79,162 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
     },
   }))
 
+// eslint-disable-next-line no-unused-vars
+const renderEditButton = (callback: (person: TPersonData) => void) => ({
+  title: 'Action',
+  width: 80,
+  render: (person: TPersonData) => <Button onClick={() => callback(person)}>Edit</Button>,
+})
+
+const renderSelectedProjects = (personData: TPersonData | undefined) => {
+  if (!personData) return []
+
+  const { projects } = personData
+  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => ({
+    label: project.name,
+    value: project.name,
+  }))
+}
+
 /* Component */
 const EmployeesPage = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
+  const [personSkills, setPersonSkills] = useState<TPersonSkills[]>()
+
+  const [editForm] = Form.useForm()
+
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
+  const projects = trpc.findManyProject.useQuery()
+  const expertise = trpc.findManyExpertise.useQuery()
+
+  const editBtnCallback = (personData: TPersonData) => {
+    if (!personData) return
+
+    setSelectedPerson(personData)
+    setPersonSkills(personData.personSkills)
+
+    editForm.setFieldsValue({
+      ...personData,
+      projects: renderSelectedProjects(personData),
+      expertise: personData.expertise.map((item) => item.name),
+      personSkills: personData.personSkills.map((personSkill) => ({
+        label: personSkill.skill.name,
+        value: personSkill.skillId,
+      })),
+    })
+
+    setIsOpen(true)
+  }
+
+  const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
 
   return (
     <PageLayout title="Employees">
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
-        columns={[...columns, ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? [])]}
+        columns={[
+          ...columns,
+          renderEditButton(editBtnCallback),
+          ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
+        ]}
         dataSource={persons?.data}
         loading={skills.isLoading || persons.isLoading}
         rowKey="email"
       />
+      <Modal
+        title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
+        open={isOpen}
+        centered={true}
+        onCancel={() => setIsOpen(false)}
+        onOk={() => setIsOpen(false)}
+        okText="Save"
+      >
+        <Form form={editForm} layout="vertical" css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}>
+          <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
+            <Form.Item name="firstName" label="First Name" required>
+              <Input />
+            </Form.Item>
+
+            <Form.Item name="lastName" label="Last Name" required>
+              <Input />
+            </Form.Item>
+
+            <Form.Item name="preferredName" label="Preferred Name">
+              <Input />
+            </Form.Item>
+          </div>
+
+          <div css={formItemRow}>
+            <Form.Item name="title" label="Title" required>
+              <Input />
+            </Form.Item>
+
+            <Form.Item name="email" label="Email" required>
+              <Input />
+            </Form.Item>
+          </div>
+
+          <Form.Item name="projects" label="Projects">
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Select projects"
+              options={projects.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
+            />
+          </Form.Item>
+
+          <Form.Item name="expertise" label="Expertise" required>
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Select expertise"
+              options={expertise.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
+            />
+          </Form.Item>
+
+          <Form.Item name="personSkills" label="Skills">
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Select skills"
+              options={skillOptions}
+              onSelect={(_, skill) => {
+                if (!selectedPerson) return
+                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                if (!selectedSkill) return
+
+                const newSelectedSkill = {
+                  level: 1,
+                  skillId: skill.value,
+                  personId: selectedPerson.id,
+                  skill: selectedSkill,
+                }
+
+                setPersonSkills((pre) => (pre ? [...pre, newSelectedSkill] : [newSelectedSkill]))
+              }}
+              onDeselect={(_, skill) => {
+                if (!selectedPerson) return
+
+                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                if (!selectedSkill) return
+
+                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skillId !== skill.value) : []))
+              }}
+            />
+          </Form.Item>
+
+          <div css={{ display: 'flex', gap: 25, flexWrap: 'wrap' }}>
+            {personSkills?.map((item) => (
+              <div key={item.skillId}>
+                <p>{item.skill?.name}</p>
+                {renderSkillDots(item?.level)}
+              </div>
+            ))}
+          </div>
+        </Form>
+      </Modal>
     </PageLayout>
   )
 }
