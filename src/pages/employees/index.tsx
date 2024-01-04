@@ -104,10 +104,15 @@ const EmployeesPage = () => {
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
   const projects = trpc.findManyProject.useQuery()
+  const expertise = trpc.findManyExpertise.useQuery()
 
   const editBtnCallback = (personData: TPersonData) => {
     setSelectedPersonName(`${personData?.preferredName || personData?.firstName} ${personData?.lastName}`)
-    editForm.setFieldsValue({ ...personData, projects: renderSelectedProjects(personData) })
+    editForm.setFieldsValue({
+      ...personData,
+      projects: renderSelectedProjects(personData),
+      expertise: personData.expertise.map((item) => ({ label: item.name, value: item.name })),
+    })
 
     setIsOpen(true)
   }
@@ -168,7 +173,12 @@ const EmployeesPage = () => {
           </Form.Item>
 
           <Form.Item name="expertise" label="Expertise" required>
-            <Input />
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Select expertise"
+              options={expertise.data?.map((project) => ({ label: project.name, value: project.name })) ?? []}
+            />
           </Form.Item>
         </Form>
       </Modal>
