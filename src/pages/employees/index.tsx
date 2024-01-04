@@ -5,7 +5,7 @@ import { RouterOutput } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { Button, Form, Input, Modal, Table } from 'antd'
+import { Button, Form, Input, Modal, Select, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -84,19 +84,30 @@ const renderEditButton = (callback: (person: TPersonData) => void) => ({
   render: (person: TPersonData) => <Button onClick={() => callback(person)}>Edit</Button>,
 })
 
+const renderSelectedProjects = (personData: TPersonData | undefined) => {
+  if (!personData) return []
+
+  const { projects } = personData
+  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => ({
+    label: project.name,
+    value: project.name,
+  }))
+}
+
 /* Component */
 const EmployeesPage = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
+  const [selectedPersonName, setSelectedPersonName] = useState('')
 
   const [editForm] = Form.useForm()
 
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
+  const projects = trpc.findManyProject.useQuery()
 
   const editBtnCallback = (personData: TPersonData) => {
-    setSelectedPerson(personData)
-    editForm.setFieldsValue(personData)
+    setSelectedPersonName(`${personData?.preferredName || personData?.firstName} ${personData?.lastName}`)
+    editForm.setFieldsValue({ ...personData, projects: renderSelectedProjects(personData) })
 
     setIsOpen(true)
   }
@@ -115,14 +126,14 @@ const EmployeesPage = () => {
         rowKey="email"
       />
       <Modal
-        title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
+        title={`Edit ${selectedPersonName}`}
         open={isOpen}
         centered={true}
         onCancel={() => setIsOpen(false)}
         onOk={() => setIsOpen(false)}
         okText="Save"
       >
-        <Form form={editForm} layout="vertical" initialValues={selectedPerson}>
+        <Form form={editForm} layout="vertical">
           <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
             <Form.Item name="firstName" label="First Name" required>
               <Input />
@@ -147,8 +158,13 @@ const EmployeesPage = () => {
             </Form.Item>
           </div>
 
-          <Form.Item name="projects" label="Projects" required>
-            <Input />
+          <Form.Item name="projects" label="Projects">
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Select projects"
+              options={projects.data?.map((project) => ({ label: project.name, value: project.name })) ?? []}
+            />
           </Form.Item>
 
           <Form.Item name="expertise" label="Expertise" required>
