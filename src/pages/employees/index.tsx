@@ -1,6 +1,8 @@
+import { ClickableDots } from '@/components/common/ClickableDots'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
+import { STYLES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
@@ -90,10 +92,7 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
   if (!personData) return []
 
   const { projects } = personData
-  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => ({
-    label: project.name,
-    value: project.name,
-  }))
+  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => project.id)
 }
 
 /* Component */
@@ -102,12 +101,18 @@ const EmployeesPage = () => {
   const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
   const [personSkills, setPersonSkills] = useState<TPersonSkills[]>()
 
-  const [editForm] = Form.useForm()
+  const [editForm] = Form.useForm<TPersonData & { projects: number[]; expertise: number[]; personSkills: number[] }>()
 
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
   const projects = trpc.findManyProject.useQuery()
   const expertise = trpc.findManyExpertise.useQuery()
+  const { mutateAsync: mutatePerson, isLoading: isUpdatePersonLoading } = trpc.updateAPerson.useMutation({
+    onSuccess: () => {
+      setIsOpen(false)
+      persons.refetch()
+    },
+  })
 
   const editBtnCallback = (personData: TPersonData) => {
     if (!personData) return
@@ -118,11 +123,8 @@ const EmployeesPage = () => {
     editForm.setFieldsValue({
       ...personData,
       projects: renderSelectedProjects(personData),
-      expertise: personData.expertise.map((item) => item.name),
-      personSkills: personData.personSkills.map((personSkill) => ({
-        label: personSkill.skill.name,
-        value: personSkill.skillId,
-      })),
+      expertise: personData.expertise.map((item) => item.id),
+      personSkills: personData.personSkills.map((personSkill) => personSkill.skillId),
     })
 
     setIsOpen(true)
@@ -140,7 +142,7 @@ const EmployeesPage = () => {
           ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
         ]}
         dataSource={persons?.data}
-        loading={skills.isLoading || persons.isLoading}
+        loading={skills.isFetching || persons.isFetching}
         rowKey="email"
       />
       <Modal
@@ -148,16 +150,34 @@ const EmployeesPage = () => {
         open={isOpen}
         centered={true}
         onCancel={() => setIsOpen(false)}
-        onOk={() => setIsOpen(false)}
+        onOk={editForm.submit}
+        confirmLoading={isUpdatePersonLoading}
         okText="Save"
       >
-        <Form form={editForm} layout="vertical" css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}>
+        <Form
+          form={editForm}
+          layout="vertical"
+          css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}
+          onFinish={async ({ firstName, projects, lastName, preferredName, title, expertise }) => {
+            if (!selectedPerson) return
+            mutatePerson({
+              id: selectedPerson.id,
+              firstName,
+              lastName,
+              preferredName,
+              projects,
+              title,
+              expertise,
+              personSkills,
+            })
+          }}
+        >
           <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
-            <Form.Item name="firstName" label="First Name" required>
+            <Form.Item name="firstName" label="First Name" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
 
-            <Form.Item name="lastName" label="Last Name" required>
+            <Form.Item name="lastName" label="Last Name" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
 
@@ -167,12 +187,12 @@ const EmployeesPage = () => {
           </div>
 
           <div css={formItemRow}>
-            <Form.Item name="title" label="Title" required>
+            <Form.Item name="title" label="Title" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
 
-            <Form.Item name="email" label="Email" required>
-              <Input />
+            <Form.Item name="email" label="Email" rules={[{ required: true }]}>
+              <Input disabled />
             </Form.Item>
           </div>
 
@@ -200,36 +220,44 @@ const EmployeesPage = () => {
               allowClear
               placeholder="Select skills"
               options={skillOptions}
-              onSelect={(_, skill) => {
+              onSelect={(value) => {
                 if (!selectedPerson) return
-                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                const selectedSkill = skills.data?.find((item) => item.id === value)
                 if (!selectedSkill) return
 
                 const newSelectedSkill = {
                   level: 1,
-                  skillId: skill.value,
+                  skillId: selectedSkill.id,
                   personId: selectedPerson.id,
                   skill: selectedSkill,
                 }
 
                 setPersonSkills((pre) => (pre ? [...pre, newSelectedSkill] : [newSelectedSkill]))
               }}
-              onDeselect={(_, skill) => {
+              onDeselect={(value) => {
                 if (!selectedPerson) return
 
-                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                const selectedSkill = skills.data?.find((item) => item.id === value)
                 if (!selectedSkill) return
 
-                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skillId !== skill.value) : []))
+                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skillId !== value) : []))
               }}
             />
           </Form.Item>
 
           <div css={{ display: 'flex', gap: 25, flexWrap: 'wrap' }}>
             {personSkills?.map((item) => (
-              <div key={item.skillId}>
-                <p>{item.skill?.name}</p>
-                {renderSkillDots(item?.level)}
+              <div css={STYLES.skillCard} key={item.skillId}>
+                <p css={{ marginBottom: 8 }}>{item.skill?.name}</p>
+                <ClickableDots
+                  skillLevel={item?.level}
+                  onClick={(level: number) =>
+                    setPersonSkills(
+                      (pre) =>
+                        pre?.map((preItem) => (preItem.skillId === item.skillId ? { ...preItem, level } : preItem))
+                    )
+                  }
+                />
               </div>
             ))}
           </div>
