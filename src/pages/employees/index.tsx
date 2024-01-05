@@ -1,6 +1,8 @@
+import { ClickableDots } from '@/components/common/ClickableDots'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
+import { STYLES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
@@ -221,9 +223,17 @@ const EmployeesPage = () => {
 
           <div css={{ display: 'flex', gap: 25, flexWrap: 'wrap' }}>
             {personSkills?.map((item) => (
-              <div key={item.skillId}>
-                <p>{item.skill?.name}</p>
-                {renderSkillDots(item?.level)}
+              <div css={STYLES.skillCard} key={item.skillId}>
+                <p css={{ marginBottom: 8 }}>{item.skill?.name}</p>
+                <ClickableDots
+                  skillLevel={item?.level}
+                  onClick={(level: number) =>
+                    setPersonSkills(
+                      (pre) =>
+                        pre?.map((preItem) => (preItem.skillId === item.skillId ? { ...preItem, level } : preItem))
+                    )
+                  }
+                />
               </div>
             ))}
           </div>

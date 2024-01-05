@@ -48,14 +48,7 @@ const SkillInfoSection = () => {
             </h3>
             <div css={{ display: 'flex', gap: 25, flexWrap: 'wrap', marginBottom: 30 }}>
               {skills.map(({ name, level }) => (
-                <div
-                  key={name}
-                  css={{
-                    border: `1px solid ${COLORS.lightGrey}`,
-                    padding: '10px 15px',
-                    borderRadius: SIZES.borderRadius,
-                  }}
-                >
+                <div key={name} css={STYLES.skillCard}>
                   <p css={{ fontSize: 14, marginBottom: 8 }}>{name}</p>
                   {renderSkillDots(level)}
                 </div>
