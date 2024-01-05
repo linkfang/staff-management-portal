@@ -90,10 +90,7 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
   if (!personData) return []
 
   const { projects } = personData
-  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => ({
-    label: project.name,
-    value: project.id,
-  }))
+  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => project.name)
 }
 
 /* Component */
@@ -118,17 +115,14 @@ const EmployeesPage = () => {
     editForm.setFieldsValue({
       ...personData,
       projects: renderSelectedProjects(personData),
-      expertise: personData.expertise.map((item) => item.id),
-      personSkills: personData.personSkills.map((personSkill) => ({
-        label: personSkill.skill.name,
-        value: personSkill.skillId,
-      })),
+      expertise: personData.expertise.map((item) => item.name),
+      personSkills: personData.personSkills.map((personSkill) => personSkill.skill.name),
     })
 
     setIsOpen(true)
   }
 
-  const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
+  const skillOptions = skills.data?.map(({ name }) => ({ label: name, value: name })) ?? []
 
   return (
     <PageLayout title="Employees">
@@ -181,7 +175,7 @@ const EmployeesPage = () => {
               mode="multiple"
               allowClear
               placeholder="Select projects"
-              options={projects.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
+              options={projects.data?.map(({ name }) => ({ label: name, value: name })) ?? []}
             />
           </Form.Item>
 
@@ -190,7 +184,7 @@ const EmployeesPage = () => {
               mode="multiple"
               allowClear
               placeholder="Select expertise"
-              options={expertise.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
+              options={expertise.data?.map(({ name }) => ({ label: name, value: name })) ?? []}
             />
           </Form.Item>
 
@@ -202,12 +196,12 @@ const EmployeesPage = () => {
               options={skillOptions}
               onSelect={(_, skill) => {
                 if (!selectedPerson) return
-                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                const selectedSkill = skills.data?.find((item) => item.name === skill.value)
                 if (!selectedSkill) return
 
                 const newSelectedSkill = {
                   level: 1,
-                  skillId: skill.value,
+                  skillId: selectedSkill.id,
                   personId: selectedPerson.id,
                   skill: selectedSkill,
                 }
@@ -217,10 +211,10 @@ const EmployeesPage = () => {
               onDeselect={(_, skill) => {
                 if (!selectedPerson) return
 
-                const selectedSkill = skills.data?.find((item) => item.id === skill.value)
+                const selectedSkill = skills.data?.find((item) => item.name === skill.value)
                 if (!selectedSkill) return
 
-                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skillId !== skill.value) : []))
+                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skill.name !== skill.value) : []))
               }}
             />
           </Form.Item>
