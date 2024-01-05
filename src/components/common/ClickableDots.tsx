@@ -34,13 +34,19 @@ export const ClickableDots = ({ skillLevel, onClick }: TClickableDots) => {
               css({ backgroundColor: renderColor(nth >= 0), border: `2px solid ${renderColor(nth >= 0)}` }),
             ]}
             onMouseEnter={() => setNth(index)}
-            onClick={() => onClick(nth + 1)}
+            onClick={(ev) => {
+              ev.preventDefault()
+              onClick(nth + 1)
+            }}
           />
         ) : (
           <button
             key={index}
             onMouseEnter={() => setNth(index)}
-            onClick={() => onClick(nth + 1)}
+            onClick={(ev) => {
+              ev.preventDefault()
+              onClick(nth + 1)
+            }}
             css={[
               STYLES.skillDot,
               clickableDotStyle,
