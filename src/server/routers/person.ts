@@ -24,6 +24,7 @@ export const personRouter = router({
   findManyPerson: procedure.query(async ({ ctx }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
       include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
+      orderBy: { id: 'asc' },
     })
     return findManyPerson.map((person) => {
       type TProjectsRaw = (typeof person.projects)[0]
