@@ -94,15 +94,15 @@ export const personRouter = router({
           }),
           ...personSkills?.map((item) =>
             ctx.prisma.personSkill.upsert({
-              where: { personId_skillId: { personId: item.personId, skillId: item.skillId } },
+              where: { personId_skillId: { personId: id, skillId: item.skillId } },
               update: { level: item.level },
-              create: { personId: item.personId, skillId: item.skillId, level: item.level },
+              create: { personId: id, skillId: item.skillId, level: item.level },
             })
           ),
           ctx.prisma.personSkill.deleteMany({
             where: {
               skillId: { notIn: personSkills.map((item) => item.skillId) },
-              personId: { equals: personSkills[0].personId },
+              personId: { equals: id },
             },
           }),
         ])
