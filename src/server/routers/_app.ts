@@ -3,11 +3,13 @@ import { mergeRouters, procedure, router } from '../trpc'
 import { personRouter } from './person'
 import { skillsRouter } from './skill'
 import { projectsRouter } from './project'
+import { expertiseRouter } from './expertise'
 
 export const appRouter = mergeRouters(
   personRouter,
   skillsRouter,
   projectsRouter,
+  expertiseRouter,
   router({
     hello: procedure
       .input(
