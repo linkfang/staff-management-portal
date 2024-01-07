@@ -80,7 +80,7 @@ export const personRouter = router({
       async ({ ctx, input: { id, firstName, lastName, preferredName, title, expertise, projects, personSkills } }) => {
         if (!personSkills) return
 
-        ctx.prisma.$transaction([
+        await ctx.prisma.$transaction([
           ctx.prisma.person.update({
             where: { id },
             data: {

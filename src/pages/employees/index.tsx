@@ -152,6 +152,8 @@ const EmployeesPage = () => {
         onCancel={() => setIsOpen(false)}
         onOk={editForm.submit}
         confirmLoading={isUpdatePersonLoading}
+        cancelButtonProps={{ disabled: isUpdatePersonLoading }}
+        closable={!isUpdatePersonLoading}
         okText="Save"
       >
         <Form
