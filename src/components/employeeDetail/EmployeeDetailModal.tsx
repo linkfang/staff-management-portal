@@ -9,7 +9,7 @@ type TEmployeeDetailModal = {
   shouldOpen: boolean
   // eslint-disable-next-line no-unused-vars
   setShouldOpen: (open: boolean) => void
-  selectedPerson: TPersonData | undefined
+  selectedPerson: TPersonData | undefined | null
   isLoading: boolean
   // eslint-disable-next-line no-unused-vars
   callbackFunc: (person: TPersonDataMutation) => void
@@ -31,9 +31,11 @@ const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' }
 
 const renderSelectedProjects = (personData: TPersonData | undefined) => {
   if (!personData) return []
-
   const { projects } = personData
-  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => project.id)
+
+  return projects.completed
+    ? [...projects?.completed, ...projects?.onGoing, ...projects?.upcoming].map((project) => project.id)
+    : projects.map((project) => project.id)
 }
 
 const EmployeeDetailModal = ({

@@ -13,7 +13,7 @@ const SkillInfoSection = () => {
       enabled: !!query?.id,
       select: (data) => {
         const formattedSkills: Record<string, { name: string; level: number }[]> = {}
-        data.personSkills?.forEach((item) => {
+        data?.personSkills?.forEach((item) => {
           let expertiseArr = formattedSkills[item.skill.field[0].name]
           if (!expertiseArr) expertiseArr = []
           expertiseArr.push({ name: item.skill.name, level: item.level })

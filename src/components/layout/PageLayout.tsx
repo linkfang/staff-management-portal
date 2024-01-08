@@ -1,5 +1,5 @@
 import { COLORS } from '@/constants/styles'
-import { BellOutlined, CaretDownOutlined } from '@ant-design/icons'
+import { CaretDownOutlined } from '@ant-design/icons'
 import { type SerializedStyles, css } from '@emotion/react'
 import { Dropdown } from 'antd'
 import Head from 'next/head'
@@ -7,7 +7,7 @@ import { ReactNode } from 'react'
 import Avatar from '../common/Avatar'
 
 /* Types */
-type TPageLayout = { title: string; children: ReactNode; style?: SerializedStyles }
+type TPageLayout = { title: string; actions?: ReactNode; children: ReactNode; style?: SerializedStyles }
 
 /* Constants */
 const avatarMenuItems = [
@@ -47,7 +47,7 @@ const mainStyle = {
 }
 
 /* Component */
-const PageLayout = ({ title, children, style }: TPageLayout) => {
+const PageLayout = ({ title, actions, children, style }: TPageLayout) => {
   return (
     <>
       <Head>
@@ -58,7 +58,7 @@ const PageLayout = ({ title, children, style }: TPageLayout) => {
         <h1 css={{ fontSize: 36 }}>{title}</h1>
 
         <div css={{ display: 'flex', gap: 40 }}>
-          <BellOutlined css={{ fontSize: 24, color: COLORS.textBlack }} />
+          <div css={{ display: 'flex', alignItems: 'center' }}>{actions}</div>
           <Dropdown menu={{ items: avatarMenuItems }} trigger={['hover']} css={{ backgroundColor: 'transparent' }}>
             <button css={dropDownBtnStyle}>
               <Avatar firstName="Joe" lastName="Green" />

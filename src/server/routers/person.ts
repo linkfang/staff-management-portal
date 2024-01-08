@@ -6,20 +6,22 @@ import { z } from 'zod'
 
 export const personRouter = router({
   findFirstPerson: procedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
-    const findFirstPerson = await ctx.prisma.person.findFirst({
+    const findFirstPerson = await ctx.prisma.person.findUnique({
       include: {
         expertise: {},
         personSkills: { include: { skill: { include: { field: {} } } } },
         projects: {},
       },
-      where: { id: { equals: input.id } },
+      where: { id: input.id },
     })
+
     const formattedProject = findFirstPerson?.projects.map((project) => ({
       ...project,
       status: renderProjectStatus(project),
     }))
 
-    return { ...findFirstPerson, projects: formattedProject }
+    return findFirstPerson
+    // return { ...findFirstPerson, projects: formattedProject }
   }),
   findManyPerson: procedure.query(async ({ ctx }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
