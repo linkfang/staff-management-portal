@@ -2,7 +2,7 @@ import Avatar from '@/components/common/Avatar'
 import InfoItem from '@/components/common/InfoItem'
 import SkillInfoSection from '@/components/employeeDetail/SkillInfoSection'
 import PageLayout from '@/components/layout/PageLayout'
-import { DATE_FORMAT_STRINGS, PROJECT_STATUSES, statusToColorObj } from '@/constants/general'
+import { DATE_FORMAT_STRINGS, statusToColorObj } from '@/constants/general'
 import { COLORS, SIZES, STYLES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
@@ -12,6 +12,10 @@ import { Empty, Spin, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
+import { EditOutlined } from '@ant-design/icons'
+import { useState } from 'react'
+import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
+import { isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
 
 /* Types */
 type TProjectsStatsProps = {
@@ -21,7 +25,7 @@ type TProjectsStatsProps = {
   isLoading?: boolean
 }
 
-type TProjectInEmployeeData = Exclude<RouterOutput['findFirstPerson']['projects'], undefined>[0]
+type TProjectInEmployeeData = RouterOutput['findManyPerson'][0]['projects'][0]
 
 /* Constants */
 const columns: ColumnsType<TProjectInEmployeeData> = [
@@ -33,12 +37,15 @@ const columns: ColumnsType<TProjectInEmployeeData> = [
   {
     title: 'Status',
     width: 45,
-    sorter: (a, b) => a.status.localeCompare(b.status),
-    render: ({ status }: TProjectInEmployeeData) => (
-      <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
-        {status}
-      </Tag>
-    ),
+    sorter: (a, b) => a.startDate.localeCompare(b.startDate),
+    render: (project: TProjectInEmployeeData) => {
+      const status = renderProjectStatus(project)
+      return (
+        <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
+          {status}
+        </Tag>
+      )
+    },
   },
   {
     title: 'Start Date',
@@ -70,14 +77,29 @@ const ProjectsStats = ({ value, label, color, isLoading }: TProjectsStatsProps) 
 
 const EmployeeDetail = () => {
   const { query } = useRouter()
-  const { data, isLoading } = trpc.findFirstPerson.useQuery(
-    { id: Number(query?.id as string) ?? 0 },
+  const trpcUtils = trpc.useUtils()
+  const {
+    data,
+    isLoading: isLoadingDetail,
+    refetch: refetchEmployee,
+  } = trpc.findFirstPerson.useQuery(
+    { id: Number(query?.id as string) ?? -1 },
     {
       enabled: !!query?.id,
     }
   )
 
-  if (!isLoading && !data)
+  const { mutateAsync: mutatePerson, isLoading: isUpdating } = trpc.updateAPerson.useMutation({
+    onSuccess: () => {
+      setShouldOpen(false)
+      refetchEmployee()
+      trpcUtils.findManyPerson.invalidate()
+    },
+  })
+
+  const [shouldOpen, setShouldOpen] = useState(false)
+
+  if (!isLoadingDetail && !data)
     return (
       <PageLayout title="Employee Detail">
         <Empty description="No record found" />
@@ -85,10 +107,24 @@ const EmployeeDetail = () => {
     )
 
   return (
-    <PageLayout title="Employee Detail" style={css({ display: 'flex', flexDirection: 'column', paddingBottom: 50 })}>
+    <PageLayout
+      title="Employee Detail"
+      actions={
+        <EditOutlined
+          css={{
+            fontSize: 24,
+            color: COLORS.textBlack,
+            transition: 'all 0.3s ease-out',
+            ':hover': { color: COLORS.primary },
+          }}
+          onClick={() => setShouldOpen(true)}
+        />
+      }
+      style={css({ display: 'flex', flexDirection: 'column', paddingBottom: 50 })}
+    >
       {/* Employee Info */}
       <div css={[STYLES.cardCtn, css({ flexDirection: 'row', paddingLeft: 120, paddingRight: 120 })]}>
-        {isLoading || !data ? (
+        {isLoadingDetail || !data ? (
           <div css={{ height: 166, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Spin />
           </div>
@@ -116,7 +152,10 @@ const EmployeeDetail = () => {
               <InfoItem label="Title" value={data.title} />
               <InfoItem label="Email" value={data.email} />
               <InfoItem label="Expertise" value={data.expertise?.map((item) => item.name).join(', ')} />
-              <InfoItem label="Preferred Name/First Name" value={`${data.preferredName}/${data.firstName}`} />
+              <InfoItem
+                label="First Name/Preferred Name"
+                value={`${data.firstName}${data.preferredName && '/' + data.preferredName}`}
+              />
 
               <InfoItem
                 label="Updated at"
@@ -145,23 +184,30 @@ const EmployeeDetail = () => {
             }}
           >
             <ProjectsStats
-              value={data?.projects?.filter((item) => item.status === PROJECT_STATUSES['On Going']).length ?? 0}
+              value={data?.projects?.filter(({ startDate, endDate }) => isOnGoing(startDate, endDate)).length ?? 0}
               color={COLORS.primary}
               label="Working Projects"
-              isLoading={isLoading}
+              isLoading={isLoadingDetail}
             />
             <ProjectsStats
-              value={data?.projects?.filter((item) => item.status === PROJECT_STATUSES.Completed).length ?? 0}
+              value={data?.projects?.filter(({ endDate }) => isCompleted(endDate)).length ?? 0}
               label="Completed Projects"
-              isLoading={isLoading}
+              isLoading={isLoadingDetail}
             />
           </div>
 
-          <Table dataSource={data?.projects} columns={columns} loading={isLoading} rowKey="id" />
+          <Table dataSource={data?.projects} columns={columns} loading={isLoadingDetail} rowKey="id" />
         </div>
 
         <SkillInfoSection />
       </div>
+
+      <EmployeeDetailModal
+        callbackFunc={mutatePerson}
+        selectedPerson={data}
+        isLoading={isUpdating}
+        {...{ shouldOpen, setShouldOpen }}
+      />
     </PageLayout>
   )
 }

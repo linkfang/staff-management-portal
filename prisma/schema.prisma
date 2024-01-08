@@ -18,8 +18,8 @@ model Person {
   lastName      String        @db.VarChar(50)
   preferredName String        @db.VarChar(50)
   title         String        @db.VarChar(80)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime?      @default(now())
+  updatedAt     DateTime?     @updatedAt
   expertise     Field[]
   personSkills  PersonSkill[]
   projects      Project[]
@@ -44,8 +44,8 @@ model Skill {
 
 model PersonSkill {
   level     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
   person    Person   @relation(fields: [personId], references: [id])
   personId  Int
   skill     Skill    @relation(fields: [skillId], references: [id])
@@ -61,8 +61,8 @@ model Project {
   startDate   DateTime
   endDate     DateTime
   description String   @db.VarChar(1000)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
   skills      Skill[]
   fields      Field[]
   persons     Person[]
