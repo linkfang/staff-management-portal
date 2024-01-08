@@ -1,24 +1,15 @@
-import { ClickableDots } from '@/components/common/ClickableDots'
+import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
-import { STYLES } from '@/constants/styles'
-import { RouterOutput } from '@/type/general'
+import { TPersonData } from '@/type/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { Button, Form, Input, Modal, Select, Table } from 'antd'
+import { Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
-
-/* Styles */
-const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
-
-/* Types */
-type TPersonData = RouterOutput['findManyPerson'][0]
-type TPersonSkillsBackend = TPersonData['personSkills'][0]
-type TPersonSkills = Omit<TPersonSkillsBackend, 'createdAt' | 'updatedAt'>
 
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
@@ -82,34 +73,23 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
   }))
 
 // eslint-disable-next-line no-unused-vars
-const renderEditButton = (callback: (person: TPersonData) => void) => ({
+const renderEditButtonColumn = (callback: (person: TPersonData) => void) => ({
   title: 'Action',
   width: 80,
   render: (person: TPersonData) => <Button onClick={() => callback(person)}>Edit</Button>,
 })
 
-const renderSelectedProjects = (personData: TPersonData | undefined) => {
-  if (!personData) return []
-
-  const { projects } = personData
-  return [...projects.completed, ...projects.onGoing, ...projects.upcoming].map((project) => project.id)
-}
-
 /* Component */
 const EmployeesPage = () => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [shouldOpen, setShouldOpen] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
-  const [personSkills, setPersonSkills] = useState<TPersonSkills[]>()
-
-  const [editForm] = Form.useForm<TPersonData & { projects: number[]; expertise: number[]; personSkills: number[] }>()
 
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
-  const projects = trpc.findManyProject.useQuery()
-  const expertise = trpc.findManyExpertise.useQuery()
-  const { mutateAsync: mutatePerson, isLoading: isUpdatePersonLoading } = trpc.updateAPerson.useMutation({
+
+  const { mutateAsync: mutatePerson, isLoading } = trpc.updateAPerson.useMutation({
     onSuccess: () => {
-      setIsOpen(false)
+      setShouldOpen(false)
       persons.refetch()
     },
   })
@@ -118,19 +98,8 @@ const EmployeesPage = () => {
     if (!personData) return
 
     setSelectedPerson(personData)
-    setPersonSkills(personData.personSkills)
-
-    editForm.setFieldsValue({
-      ...personData,
-      projects: renderSelectedProjects(personData),
-      expertise: personData.expertise.map((item) => item.id),
-      personSkills: personData.personSkills.map((personSkill) => personSkill.skillId),
-    })
-
-    setIsOpen(true)
+    setShouldOpen(true)
   }
-
-  const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
 
   return (
     <PageLayout title="Employees">
@@ -138,133 +107,14 @@ const EmployeesPage = () => {
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[
           ...columns,
-          renderEditButton(editBtnCallback),
+          renderEditButtonColumn(editBtnCallback),
           ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
         ]}
         dataSource={persons?.data}
         loading={skills.isFetching || persons.isFetching}
         rowKey="email"
       />
-      <Modal
-        title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
-        open={isOpen}
-        centered={true}
-        onCancel={() => setIsOpen(false)}
-        onOk={editForm.submit}
-        confirmLoading={isUpdatePersonLoading}
-        cancelButtonProps={{ disabled: isUpdatePersonLoading }}
-        closable={!isUpdatePersonLoading}
-        okText="Save"
-      >
-        <Form
-          form={editForm}
-          layout="vertical"
-          css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}
-          onFinish={async ({ firstName, projects, lastName, preferredName, title, expertise }) => {
-            if (!selectedPerson) return
-            mutatePerson({
-              id: selectedPerson.id,
-              firstName,
-              lastName,
-              preferredName,
-              projects,
-              title,
-              expertise,
-              personSkills,
-            })
-          }}
-        >
-          <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
-            <Form.Item name="firstName" label="First Name" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-
-            <Form.Item name="lastName" label="Last Name" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-
-            <Form.Item name="preferredName" label="Preferred Name">
-              <Input />
-            </Form.Item>
-          </div>
-
-          <div css={formItemRow}>
-            <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-
-            <Form.Item name="email" label="Email" rules={[{ required: true }]}>
-              <Input disabled />
-            </Form.Item>
-          </div>
-
-          <Form.Item name="projects" label="Projects">
-            <Select
-              mode="multiple"
-              allowClear
-              placeholder="Select projects"
-              options={projects.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
-            />
-          </Form.Item>
-
-          <Form.Item name="expertise" label="Expertise" required>
-            <Select
-              mode="multiple"
-              allowClear
-              placeholder="Select expertise"
-              options={expertise.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
-            />
-          </Form.Item>
-
-          <Form.Item name="personSkills" label="Skills">
-            <Select
-              mode="multiple"
-              allowClear
-              placeholder="Select skills"
-              options={skillOptions}
-              onSelect={(value) => {
-                if (!selectedPerson) return
-                const selectedSkill = skills.data?.find((item) => item.id === value)
-                if (!selectedSkill) return
-
-                const newSelectedSkill = {
-                  level: 1,
-                  skillId: selectedSkill.id,
-                  personId: selectedPerson.id,
-                  skill: selectedSkill,
-                }
-
-                setPersonSkills((pre) => (pre ? [...pre, newSelectedSkill] : [newSelectedSkill]))
-              }}
-              onDeselect={(value) => {
-                if (!selectedPerson) return
-
-                const selectedSkill = skills.data?.find((item) => item.id === value)
-                if (!selectedSkill) return
-
-                setPersonSkills((pre) => (pre ? pre.filter((item) => item.skillId !== value) : []))
-              }}
-            />
-          </Form.Item>
-
-          <div css={{ display: 'flex', gap: 25, flexWrap: 'wrap' }}>
-            {personSkills?.map((item) => (
-              <div css={STYLES.skillCard} key={item.skillId}>
-                <p css={{ marginBottom: 8 }}>{item.skill?.name}</p>
-                <ClickableDots
-                  skillLevel={item?.level}
-                  onClick={(level: number) =>
-                    setPersonSkills(
-                      (pre) =>
-                        pre?.map((preItem) => (preItem.skillId === item.skillId ? { ...preItem, level } : preItem))
-                    )
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </Form>
-      </Modal>
+      <EmployeeDetailModal callbackFunc={mutatePerson} {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }} />
     </PageLayout>
   )
 }
