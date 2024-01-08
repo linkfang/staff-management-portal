@@ -2,6 +2,7 @@ import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { statusToColorObj } from '@/constants/general'
 import { RouterOutput } from '@/type/general'
+import { renderProjectStatus } from '@/utils/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 import { Button, Table, Tag } from 'antd'
@@ -15,12 +16,16 @@ const columns: ColumnsType<TProjectData> = [
   {
     title: 'Status',
     width: 120,
-    sorter: (a, b) => a.status.localeCompare(b.status),
-    render: ({ status }: TProjectData) => (
-      <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
-        {status}
-      </Tag>
-    ),
+    sorter: (a, b) => a.startDate.localeCompare(b.startDate),
+
+    render: (project: TProjectData) => {
+      const status = renderProjectStatus(project)
+      return (
+        <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
+          {status}
+        </Tag>
+      )
+    },
   },
   {
     title: 'Start Date',

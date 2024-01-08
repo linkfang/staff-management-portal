@@ -2,13 +2,14 @@ import { COLORS, STYLES } from '@/constants/styles'
 import { trpc } from '@/utils/trpc'
 import ProjectStateCard from './ProjectStateCard'
 import { CheckOutlined, ClockCircleOutlined, DesktopOutlined } from '@ant-design/icons'
+import { renderProjectStatus } from '@/utils/general'
 
 function ProjectsOverviewSection() {
   const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(undefined, {
     select: (projects) => {
       const projectStats = { upcoming: 0, ongoing: 0, completed: 0 }
       projects.forEach((project) => {
-        switch (project.status) {
+        switch (renderProjectStatus(project)) {
           case 'Upcoming':
             projectStats.upcoming++
             break
