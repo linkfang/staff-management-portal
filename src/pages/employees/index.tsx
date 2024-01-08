@@ -3,6 +3,7 @@ import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
 import { TPersonData } from '@/type/general'
+import { isOnGoing } from '@/utils/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
@@ -18,7 +19,7 @@ const columns: ColumnsType<TPersonData> = [
     width: 190,
     fixed: 'left',
     render: (item: TPersonData) => (
-      <Link href={ALL_PATHS.employeeWithID(item.id)}>
+      <Link href={ALL_PATHS.employeeWithID(item?.id)}>
         {item.preferredName || item.firstName} {item.lastName}
       </Link>
     ),
@@ -33,10 +34,10 @@ const columns: ColumnsType<TPersonData> = [
     title: 'Projects',
     width: 100,
     sorter: (a, b) => {
-      const onGoingB = b.projects.onGoing.length
-      const onGoingA = a.projects.onGoing.length
-      const totalB = b.projects.totalAmount
-      const totalA = a.projects.totalAmount
+      const onGoingB = b.projects.filter(({ startDate, endDate }) => isOnGoing(startDate, endDate)).length
+      const onGoingA = a.projects.filter(({ startDate, endDate }) => isOnGoing(startDate, endDate)).length
+      const totalB = b.projects.length
+      const totalA = a.projects.length
 
       // Doing all 3 conditions to make the order change as little as possible
       if (onGoingB > onGoingA || totalB > totalA) return -1
@@ -45,7 +46,7 @@ const columns: ColumnsType<TPersonData> = [
     },
     render: ({ projects }: TPersonData) => (
       <>
-        {projects.onGoing.length} of {projects.totalAmount}
+        {projects.filter(({ startDate, endDate }) => isOnGoing(startDate, endDate)).length} of {projects.length}
       </>
     ),
   },

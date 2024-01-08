@@ -33,9 +33,7 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
   if (!personData) return []
   const { projects } = personData
 
-  return projects.completed
-    ? [...projects?.completed, ...projects?.onGoing, ...projects?.upcoming].map((project) => project.id)
-    : projects.map((project) => project.id)
+  return projects.map((project) => project.id)
 }
 
 const EmployeeDetailModal = ({

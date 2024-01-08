@@ -2,7 +2,7 @@ import Avatar from '@/components/common/Avatar'
 import InfoItem from '@/components/common/InfoItem'
 import SkillInfoSection from '@/components/employeeDetail/SkillInfoSection'
 import PageLayout from '@/components/layout/PageLayout'
-import { DATE_FORMAT_STRINGS, PROJECT_STATUSES, statusToColorObj } from '@/constants/general'
+import { DATE_FORMAT_STRINGS, statusToColorObj } from '@/constants/general'
 import { COLORS, SIZES, STYLES } from '@/constants/styles'
 import { RouterOutput } from '@/type/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import { EditOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
+import { isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
 
 /* Types */
 type TProjectsStatsProps = {
@@ -24,7 +25,7 @@ type TProjectsStatsProps = {
   isLoading?: boolean
 }
 
-type TProjectInEmployeeData = RouterOutput['findManyProject'][0]
+type TProjectInEmployeeData = RouterOutput['findManyPerson'][0]['projects'][0]
 
 /* Constants */
 const columns: ColumnsType<TProjectInEmployeeData> = [
@@ -36,12 +37,15 @@ const columns: ColumnsType<TProjectInEmployeeData> = [
   {
     title: 'Status',
     width: 45,
-    sorter: (a, b) => a.status.localeCompare(b.status),
-    render: ({ status }: TProjectInEmployeeData) => (
-      <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
-        {status}
-      </Tag>
-    ),
+    sorter: (a, b) => a.startDate.localeCompare(b.startDate),
+    render: (project: TProjectInEmployeeData) => {
+      const status = renderProjectStatus(project)
+      return (
+        <Tag css={{ width: '100%', textAlign: 'center' }} color={statusToColorObj[status]}>
+          {status}
+        </Tag>
+      )
+    },
   },
   {
     title: 'Start Date',
@@ -180,13 +184,13 @@ const EmployeeDetail = () => {
             }}
           >
             <ProjectsStats
-              value={data?.projects?.filter((item) => item.status === PROJECT_STATUSES['On Going']).length ?? 0}
+              value={data?.projects?.filter(({ startDate, endDate }) => isOnGoing(startDate, endDate)).length ?? 0}
               color={COLORS.primary}
               label="Working Projects"
               isLoading={isLoadingDetail}
             />
             <ProjectsStats
-              value={data?.projects?.filter((item) => item.status === PROJECT_STATUSES.Completed).length ?? 0}
+              value={data?.projects?.filter(({ endDate }) => isCompleted(endDate)).length ?? 0}
               label="Completed Projects"
               isLoading={isLoadingDetail}
             />
