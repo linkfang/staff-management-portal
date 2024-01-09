@@ -69,7 +69,11 @@ const EmployeeDetailModal = ({
 
   return (
     <Modal
-      title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
+      title={
+        selectedPerson
+          ? `Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`
+          : 'Add an employee'
+      }
       open={shouldOpen}
       centered={true}
       onCancel={() => setShouldOpen(false)}
@@ -77,7 +81,7 @@ const EmployeeDetailModal = ({
       confirmLoading={isLoading}
       cancelButtonProps={{ disabled: isLoading }}
       closable={!isLoading}
-      okText="Save"
+      okText={selectedPerson ? 'Save' : 'Add'}
     >
       <Form
         form={form}

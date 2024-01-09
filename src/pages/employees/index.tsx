@@ -12,6 +12,9 @@ import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
 
+import { UserAddOutlined } from '@ant-design/icons'
+import ActionButton from '@/components/common/ActionButton'
+
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
   {
@@ -103,7 +106,20 @@ const EmployeesPage = () => {
   }
 
   return (
-    <PageLayout title="Employees">
+    <PageLayout
+      title="Employees"
+      actions={
+        <>
+          <ActionButton
+            icon={<UserAddOutlined />}
+            action={() => {
+              setSelectedPerson(undefined)
+              setShouldOpen(true)
+            }}
+          />
+        </>
+      }
+    >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[

@@ -39,4 +39,4 @@ export const STYLES = {
     padding: '15px 20px',
     borderRadius: SIZES.borderRadius,
   }),
-}
+} as const
