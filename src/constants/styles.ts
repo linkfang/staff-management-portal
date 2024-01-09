@@ -35,8 +35,8 @@ export const STYLES = {
   sectionTitle: css({ color: COLORS.textGrey, marginBottom: 25 }),
   skillDot: css({ height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }),
   skillCard: css({
-    border: `1px solid ${COLORS.lightGrey}`,
-    padding: '10px 15px',
+    border: `2px solid ${COLORS.lightGrey}`,
+    padding: '15px 20px',
     borderRadius: SIZES.borderRadius,
   }),
 }
