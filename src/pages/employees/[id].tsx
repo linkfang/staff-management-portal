@@ -193,12 +193,15 @@ const EmployeeDetail = () => {
         <SkillInfoSection />
       </div>
 
-      <EmployeeDetailModal
-        callbackFunc={mutatePerson}
-        selectedPerson={data}
-        isLoading={isUpdating}
-        {...{ shouldOpen, setShouldOpen }}
-      />
+      {data && (
+        <EmployeeDetailModal
+          isEdit={true}
+          callbackFunc={mutatePerson}
+          selectedPerson={data}
+          isLoading={isUpdating}
+          {...{ shouldOpen, setShouldOpen }}
+        />
+      )}
     </PageLayout>
   )
 }

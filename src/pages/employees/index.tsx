@@ -91,11 +91,18 @@ const EmployeesPage = () => {
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
 
-  const { mutateAsync: mutatePerson, isLoading } = trpc.updateAPerson.useMutation({
-    onSuccess: () => {
-      setShouldOpen(false)
-      persons.refetch()
-    },
+  const onMutationSuccess = () => {
+    setShouldOpen(false)
+    persons.refetch()
+  }
+
+  const { mutateAsync: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
+    onSuccess: onMutationSuccess,
+  })
+
+  const { mutateAsync: createPerson } = trpc.createAPerson.useMutation({
+    onSuccess: onMutationSuccess,
+    onError: () => console.log('error'),
   })
 
   const editBtnCallback = (personData: TPersonData) => {
@@ -131,7 +138,20 @@ const EmployeesPage = () => {
         loading={skills.isFetching || persons.isFetching}
         rowKey="email"
       />
-      <EmployeeDetailModal callbackFunc={mutatePerson} {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }} />
+
+      {selectedPerson ? (
+        <EmployeeDetailModal
+          callbackFunc={updatePerson}
+          isEdit={!!selectedPerson}
+          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
+        />
+      ) : (
+        <EmployeeDetailModal
+          callbackFunc={createPerson}
+          isEdit={!!selectedPerson}
+          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
+        />
+      )}
     </PageLayout>
   )
 }
