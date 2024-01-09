@@ -35,11 +35,14 @@ export const personRouter = router({
       })
     )
     .mutation(
-      async ({ ctx, input: { id, firstName, lastName, preferredName, title, expertise, projects, personSkills } }) => {
-        if (!personSkills) return
+      async ({
+        ctx: { prisma },
+        input: { id, firstName, lastName, preferredName, title, expertise, projects, personSkills },
+      }) => {
+        if (!personSkills) personSkills = []
 
-        await ctx.prisma.$transaction([
-          ctx.prisma.person.update({
+        await prisma.$transaction([
+          prisma.person.update({
             where: { id },
             data: {
               firstName,
@@ -51,13 +54,13 @@ export const personRouter = router({
             },
           }),
           ...personSkills?.map((item) =>
-            ctx.prisma.personSkill.upsert({
+            prisma.personSkill.upsert({
               where: { personId_skillId: { personId: id, skillId: item.skillId } },
               update: { level: item.level },
               create: { personId: id, skillId: item.skillId, level: item.level },
             })
           ),
-          ctx.prisma.personSkill.deleteMany({
+          prisma.personSkill.deleteMany({
             where: {
               skillId: { notIn: personSkills.map((item) => item.skillId) },
               personId: { equals: id },
@@ -66,6 +69,47 @@ export const personRouter = router({
         ])
 
         return `Updated ${preferredName || firstName} ${lastName}`
+      }
+    ),
+  createAPerson: procedure
+    .input(
+      z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+        email: z.string(),
+        preferredName: z.string(),
+        title: z.string(),
+        expertise: z.array(z.number()),
+        projects: z.array(z.number()).optional(),
+        personSkills: z.array(z.object({ level: z.number(), personId: z.number(), skillId: z.number() })),
+      })
+    )
+    .mutation(
+      async ({
+        ctx: { prisma },
+        input: { firstName, lastName, email, preferredName, title, expertise, projects, personSkills },
+      }) => {
+        try {
+          const newPerson = await prisma.person.create({
+            data: {
+              firstName,
+              lastName,
+              email,
+              preferredName,
+              title,
+              expertise: { connect: expertise.map((id) => ({ id })) },
+              projects: { connect: projects?.map((id) => ({ id })) },
+            },
+          })
+
+          await prisma.personSkill.createMany({
+            data: personSkills.map(({ skillId, level }) => ({ skillId, level, personId: newPerson.id })),
+          })
+
+          return `Created ${preferredName || firstName} ${lastName}`
+        } catch (error) {
+          return error
+        }
       }
     ),
 })

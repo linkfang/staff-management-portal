@@ -16,6 +16,7 @@ import { EditOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
 import { isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
+import ActionButton from '@/components/common/ActionButton'
 
 /* Types */
 type TProjectsStatsProps = {
@@ -109,17 +110,7 @@ const EmployeeDetail = () => {
   return (
     <PageLayout
       title="Employee Detail"
-      actions={
-        <EditOutlined
-          css={{
-            fontSize: 24,
-            color: COLORS.textBlack,
-            transition: 'all 0.3s ease-out',
-            ':hover': { color: COLORS.primary },
-          }}
-          onClick={() => setShouldOpen(true)}
-        />
-      }
+      actions={<ActionButton icon={<EditOutlined />} action={() => setShouldOpen(true)} />}
       style={css({ display: 'flex', flexDirection: 'column', paddingBottom: 50 })}
     >
       {/* Employee Info */}
@@ -202,12 +193,15 @@ const EmployeeDetail = () => {
         <SkillInfoSection />
       </div>
 
-      <EmployeeDetailModal
-        callbackFunc={mutatePerson}
-        selectedPerson={data}
-        isLoading={isUpdating}
-        {...{ shouldOpen, setShouldOpen }}
-      />
+      {data && (
+        <EmployeeDetailModal
+          isEdit={true}
+          callbackFunc={mutatePerson}
+          selectedPerson={data}
+          isLoading={isUpdating}
+          {...{ shouldOpen, setShouldOpen }}
+        />
+      )}
     </PageLayout>
   )
 }

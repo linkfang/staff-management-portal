@@ -3,28 +3,35 @@ import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
-import { TPersonData } from '@/type/general'
+import { RouterInput, TPersonData } from '@/type/general'
+
+/* Types */
+type TPersonSkills = TPersonData['personSkills'][0]
+type TCreatePersonData = RouterInput['createAPerson']
+type TPersonDataUpdate = RouterInput['updateAPerson']
+type TPersonDataForm = Omit<TCreatePersonData, 'personSkills'> & {
+  personSkills: number[]
+}
 
 type TEmployeeDetailModal = {
   shouldOpen: boolean
   // eslint-disable-next-line no-unused-vars
   setShouldOpen: (open: boolean) => void
-  selectedPerson: TPersonData | undefined | null
   isLoading: boolean
-  // eslint-disable-next-line no-unused-vars
-  callbackFunc: (person: TPersonDataMutation) => void
-}
-
-type TPersonSkills = TPersonData['personSkills'][0]
-
-type TPersonDataMutation = Omit<TPersonData, 'projects' | 'expertise'> & {
-  projects: number[]
-  expertise: number[]
-}
-
-type TPersonDataForm = Omit<TPersonDataMutation, 'personSkills'> & {
-  personSkills: number[]
-}
+} & (
+  | {
+      isEdit: true
+      // eslint-disable-next-line no-unused-vars
+      callbackFunc: (person: TPersonDataUpdate) => void
+      selectedPerson: TPersonData
+    }
+  | {
+      isEdit: false
+      // eslint-disable-next-line no-unused-vars
+      callbackFunc: (person: TCreatePersonData) => void
+      selectedPerson: undefined
+    }
+)
 
 /* Styles */
 const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
@@ -42,11 +49,12 @@ const EmployeeDetailModal = ({
   selectedPerson,
   isLoading,
   callbackFunc,
+  isEdit,
 }: TEmployeeDetailModal) => {
   const [form] = Form.useForm<TPersonDataForm>()
-  const { setFieldsValue } = form
+  const { setFieldsValue, resetFields } = form
 
-  const [personSkills, setPersonSkills] = useState<TPersonSkills[]>()
+  const [personSkills, setPersonSkills] = useState<TPersonSkills[]>([])
 
   const projects = trpc.findManyProject.useQuery()
   const expertise = trpc.findManyExpertise.useQuery()
@@ -55,38 +63,64 @@ const EmployeeDetailModal = ({
   const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
 
   useEffect(() => {
-    if (!selectedPerson) return
+    if (isEdit) {
+      setFieldsValue({
+        ...selectedPerson,
+        projects: renderSelectedProjects(selectedPerson),
+        expertise: selectedPerson.expertise.map((item) => item.id),
+        personSkills: selectedPerson.personSkills.map((personSkill) => personSkill.skillId),
+      })
+      setPersonSkills(selectedPerson.personSkills)
+      return
+    }
 
-    setFieldsValue({
-      ...selectedPerson,
-      projects: renderSelectedProjects(selectedPerson),
-      expertise: selectedPerson.expertise.map((item) => item.id),
-      personSkills: selectedPerson.personSkills.map((personSkill) => personSkill.skillId),
-    })
-
-    setPersonSkills(selectedPerson.personSkills)
-  }, [selectedPerson, setFieldsValue])
+    resetFields()
+    setPersonSkills([])
+  }, [selectedPerson, isEdit, setFieldsValue, resetFields])
 
   return (
     <Modal
-      title={`Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`}
+      title={
+        isEdit
+          ? `Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`
+          : 'Add an Employee'
+      }
       open={shouldOpen}
       centered={true}
-      onCancel={() => setShouldOpen(false)}
+      onCancel={() => {
+        setShouldOpen(false)
+        if (!isEdit) {
+          resetFields()
+          setPersonSkills([])
+        }
+      }}
       onOk={form.submit}
       confirmLoading={isLoading}
       cancelButtonProps={{ disabled: isLoading }}
       closable={!isLoading}
-      okText="Save"
+      okText={isEdit ? 'Save' : 'Add'}
     >
       <Form
         form={form}
         layout="vertical"
         css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}
         onFinish={async ({ firstName, projects, lastName, preferredName, title, expertise, email }) => {
-          if (!selectedPerson || !personSkills) return
+          if (isEdit) {
+            callbackFunc({
+              id: selectedPerson.id,
+              firstName,
+              lastName,
+              preferredName,
+              projects,
+              title,
+              expertise,
+              personSkills,
+            })
+            return
+          }
+
+          // When is add
           callbackFunc({
-            id: selectedPerson.id,
             firstName,
             lastName,
             preferredName,
@@ -95,8 +129,6 @@ const EmployeeDetailModal = ({
             expertise,
             personSkills,
             email,
-            createdAt: null,
-            updatedAt: null,
           })
         }}
       >
@@ -109,7 +141,7 @@ const EmployeeDetailModal = ({
             <Input />
           </Form.Item>
 
-          <Form.Item name="preferredName" label="Preferred Name">
+          <Form.Item name="preferredName" label="Preferred Name" initialValue="">
             <Input />
           </Form.Item>
         </div>
@@ -119,8 +151,8 @@ const EmployeeDetailModal = ({
             <Input />
           </Form.Item>
 
-          <Form.Item name="email" label="Email" rules={[{ required: true }]}>
-            <Input disabled />
+          <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+            <Input disabled={isEdit} />
           </Form.Item>
         </div>
 
@@ -135,7 +167,7 @@ const EmployeeDetailModal = ({
           />
         </Form.Item>
 
-        <Form.Item name="expertise" label="Expertise" required>
+        <Form.Item name="expertise" label="Expertise" rules={[{ required: true }]} initialValue={[]}>
           <Select
             mode="multiple"
             allowClear
@@ -155,14 +187,13 @@ const EmployeeDetailModal = ({
             disabled={skills.isLoading}
             options={skillOptions}
             onSelect={(value) => {
-              if (!selectedPerson) return
               const selectedSkill = skills.data?.find((item) => item.id === value)
               if (!selectedSkill) return
 
               const newSelectedSkill = {
                 level: 1,
                 skillId: selectedSkill.id,
-                personId: selectedPerson.id,
+                personId: selectedPerson?.id || -1,
                 skill: selectedSkill,
                 updatedAt: null,
                 createdAt: null,
@@ -171,8 +202,6 @@ const EmployeeDetailModal = ({
               setPersonSkills((pre) => (pre ? [...pre, newSelectedSkill] : [newSelectedSkill]))
             }}
             onDeselect={(value) => {
-              if (!selectedPerson) return
-
               const selectedSkill = skills.data?.find((item) => item.id === value)
               if (!selectedSkill) return
 

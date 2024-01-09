@@ -12,6 +12,9 @@ import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
 
+import { UserAddOutlined } from '@ant-design/icons'
+import ActionButton from '@/components/common/ActionButton'
+
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
   {
@@ -88,11 +91,18 @@ const EmployeesPage = () => {
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
 
-  const { mutateAsync: mutatePerson, isLoading } = trpc.updateAPerson.useMutation({
-    onSuccess: () => {
-      setShouldOpen(false)
-      persons.refetch()
-    },
+  const onMutationSuccess = () => {
+    setShouldOpen(false)
+    persons.refetch()
+  }
+
+  const { mutateAsync: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
+    onSuccess: onMutationSuccess,
+  })
+
+  const { mutateAsync: createPerson } = trpc.createAPerson.useMutation({
+    onSuccess: onMutationSuccess,
+    onError: () => console.log('error'),
   })
 
   const editBtnCallback = (personData: TPersonData) => {
@@ -103,7 +113,20 @@ const EmployeesPage = () => {
   }
 
   return (
-    <PageLayout title="Employees">
+    <PageLayout
+      title="Employees"
+      actions={
+        <>
+          <ActionButton
+            icon={<UserAddOutlined />}
+            action={() => {
+              setSelectedPerson(undefined)
+              setShouldOpen(true)
+            }}
+          />
+        </>
+      }
+    >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[
@@ -115,7 +138,20 @@ const EmployeesPage = () => {
         loading={skills.isFetching || persons.isFetching}
         rowKey="email"
       />
-      <EmployeeDetailModal callbackFunc={mutatePerson} {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }} />
+
+      {selectedPerson ? (
+        <EmployeeDetailModal
+          callbackFunc={updatePerson}
+          isEdit={!!selectedPerson}
+          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
+        />
+      ) : (
+        <EmployeeDetailModal
+          callbackFunc={createPerson}
+          isEdit={!!selectedPerson}
+          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
+        />
+      )}
     </PageLayout>
   )
 }
