@@ -6,8 +6,8 @@ export const personRouter = router({
     const findFirstPerson = await ctx.prisma.person.findUnique({
       include: {
         expertise: {},
-        personSkills: { include: { skill: { include: { field: {} } } } },
-        projects: {},
+        personSkills: { include: { skill: { include: { field: {} } } }, orderBy: { skill: { name: 'asc' } } },
+        projects: { orderBy: { startDate: 'asc' } },
       },
       where: { id: input.id },
     })
@@ -16,8 +16,12 @@ export const personRouter = router({
   }),
   findManyPerson: procedure.query(async ({ ctx }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
-      include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
-      orderBy: { id: 'asc' },
+      include: {
+        expertise: { orderBy: { name: 'asc' } },
+        personSkills: { include: { skill: {} }, orderBy: { skill: { name: 'asc' } } },
+        projects: { orderBy: { name: 'asc' } },
+      },
+      orderBy: { createdAt: 'desc' },
     })
     return findManyPerson
   }),
