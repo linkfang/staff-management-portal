@@ -8,14 +8,14 @@ import { RouterOutput } from '@/type/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 import { css } from '@emotion/react'
-import { Empty, Spin, Table, Tag } from 'antd'
+import { App, Empty, Spin, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import { EditOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
-import { isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
+import { displayName, isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
 import ActionButton from '@/components/common/ActionButton'
 
 /* Types */
@@ -77,6 +77,7 @@ const ProjectsStats = ({ value, label, color, isLoading }: TProjectsStatsProps) 
 )
 
 const EmployeeDetail = () => {
+  const { notification } = App.useApp()
   const { query } = useRouter()
   const trpcUtils = trpc.useUtils()
   const {
@@ -90,11 +91,12 @@ const EmployeeDetail = () => {
     }
   )
 
-  const { mutateAsync: mutatePerson, isLoading: isUpdating } = trpc.updateAPerson.useMutation({
-    onSuccess: () => {
+  const { mutate: mutatePerson, isLoading: isUpdating } = trpc.updateAPerson.useMutation({
+    onSuccess: (_, person) => {
       setShouldOpen(false)
       refetchEmployee()
       trpcUtils.findManyPerson.invalidate()
+      notification.success({ message: `Updated ${displayName(person)}` })
     },
   })
 

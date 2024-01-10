@@ -3,11 +3,11 @@ import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
 import { TPersonData } from '@/type/general'
-import { isOnGoing } from '@/utils/general'
+import { displayName, isOnGoing } from '@/utils/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { Button, Table } from 'antd'
+import { App, Button, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -21,11 +21,7 @@ const columns: ColumnsType<TPersonData> = [
     title: 'Full Name',
     width: 190,
     fixed: 'left',
-    render: (item: TPersonData) => (
-      <Link href={ALL_PATHS.employeeWithID(item?.id)}>
-        {item.preferredName || item.firstName} {item.lastName}
-      </Link>
-    ),
+    render: (item: TPersonData) => <Link href={ALL_PATHS.employeeWithID(item?.id)}>{displayName(item)}</Link>,
   },
   { title: 'Title', dataIndex: 'title', width: 200, sorter: (a, b) => a.title.localeCompare(b.title) },
   {
@@ -87,6 +83,7 @@ const renderEditButtonColumn = (callback: (person: TPersonData) => void) => ({
 const EmployeesPage = () => {
   const [shouldOpen, setShouldOpen] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
+  const { notification } = App.useApp()
 
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
@@ -96,13 +93,18 @@ const EmployeesPage = () => {
     persons.refetch()
   }
 
-  const { mutateAsync: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
-    onSuccess: onMutationSuccess,
+  const { mutate: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
+    onSuccess: (_, person) => {
+      onMutationSuccess()
+      notification.success({ message: `Updated ${displayName(person)}` })
+    },
   })
 
-  const { mutateAsync: createPerson } = trpc.createAPerson.useMutation({
-    onSuccess: onMutationSuccess,
-    onError: () => console.log('error'),
+  const { mutate: createPerson } = trpc.createAPerson.useMutation({
+    onSuccess: (_, person) => {
+      onMutationSuccess()
+      notification.success({ message: `Add ${displayName(person)}` })
+    },
   })
 
   const editBtnCallback = (personData: TPersonData) => {

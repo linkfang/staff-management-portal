@@ -1,9 +1,10 @@
-import { Form, Input, Modal, Select, SelectProps } from 'antd'
+import { App, Form, Input, Modal, Select, SelectProps } from 'antd'
 import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { RouterInput, TPersonData } from '@/type/general'
+import { displayName } from '@/utils/general'
 
 /* Types */
 type TPersonSkills = TPersonData['personSkills'][0]
@@ -57,6 +58,7 @@ const EmployeeDetailModal = ({
   isEdit,
 }: TEmployeeDetailModal) => {
   const [form] = Form.useForm<TPersonDataForm>()
+  const { notification } = App.useApp()
   const { setFieldsValue, resetFields } = form
 
   const [personSkills, setPersonSkills] = useState<TPersonSkills[]>([])
@@ -64,6 +66,7 @@ const EmployeeDetailModal = ({
   const projects = trpc.findManyProject.useQuery()
   const expertise = trpc.findManyExpertise.useQuery()
   const skills = trpc.findManySkill.useQuery()
+  const employees = trpc.findManyPerson.useQuery()
 
   const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
 
@@ -85,11 +88,7 @@ const EmployeeDetailModal = ({
 
   return (
     <Modal
-      title={
-        isEdit
-          ? `Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`
-          : 'Add an Employee'
-      }
+      title={isEdit ? `Edit ${displayName(selectedPerson)}` : 'Add an Employee'}
       open={shouldOpen}
       centered={true}
       onCancel={() => {
@@ -125,6 +124,14 @@ const EmployeeDetailModal = ({
           }
 
           // When is add
+          if (employees.data?.find((person) => person.email === email)) {
+            notification.error({
+              message: 'Invalid Email',
+              description: 'This email already exists, please use a different one.',
+            })
+            return
+          }
+
           callbackFunc({
             firstName,
             lastName,
@@ -156,7 +163,7 @@ const EmployeeDetailModal = ({
             <Input />
           </Form.Item>
 
-          <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+          <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]} validateDebounce={400}>
             <Input disabled={isEdit} />
           </Form.Item>
         </div>
