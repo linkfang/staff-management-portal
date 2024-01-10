@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Select } from 'antd'
+import { Form, Input, Modal, Select, SelectProps } from 'antd'
 import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useEffect, useState } from 'react'
@@ -36,6 +36,7 @@ type TEmployeeDetailModal = {
 /* Styles */
 const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
 
+/* Functions */
 const renderSelectedProjects = (personData: TPersonData | undefined) => {
   if (!personData) return []
   const { projects } = personData
@@ -43,6 +44,10 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
   return projects.map((project) => project.id)
 }
 
+/* Constants */
+const selectOptions: SelectProps = { mode: 'multiple', allowClear: true, optionFilterProp: 'label' }
+
+/* Components */
 const EmployeeDetailModal = ({
   shouldOpen,
   setShouldOpen,
@@ -158,8 +163,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="projects" label="Projects">
           <Select
-            mode="multiple"
-            allowClear
+            {...selectOptions}
             placeholder="Select projects"
             loading={projects.isLoading}
             disabled={projects.isLoading}
@@ -169,8 +173,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="expertise" label="Expertise" rules={[{ required: true }]} initialValue={[]}>
           <Select
-            mode="multiple"
-            allowClear
+            {...selectOptions}
             loading={expertise.isLoading}
             disabled={expertise.isLoading}
             placeholder="Select expertise"
@@ -180,8 +183,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="personSkills" label="Skills">
           <Select
-            mode="multiple"
-            allowClear
+            {...selectOptions}
             placeholder="Select skills"
             loading={skills.isLoading}
             disabled={skills.isLoading}
