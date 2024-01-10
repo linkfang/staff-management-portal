@@ -6,8 +6,8 @@ export const personRouter = router({
     const findFirstPerson = await ctx.prisma.person.findUnique({
       include: {
         expertise: {},
-        personSkills: { include: { skill: { include: { field: {} } } } },
-        projects: {},
+        personSkills: { include: { skill: { include: { field: {} } } }, orderBy: { skill: { name: 'asc' } } },
+        projects: { orderBy: { startDate: 'asc' } },
       },
       where: { id: input.id },
     })
@@ -16,8 +16,12 @@ export const personRouter = router({
   }),
   findManyPerson: procedure.query(async ({ ctx }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
-      include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
-      orderBy: { id: 'asc' },
+      include: {
+        expertise: { orderBy: { name: 'asc' } },
+        personSkills: { include: { skill: {} }, orderBy: { skill: { name: 'asc' } } },
+        projects: { orderBy: { name: 'asc' } },
+      },
+      orderBy: { id: 'desc' },
     })
     return findManyPerson
   }),
@@ -89,27 +93,23 @@ export const personRouter = router({
         ctx: { prisma },
         input: { firstName, lastName, email, preferredName, title, expertise, projects, personSkills },
       }) => {
-        try {
-          const newPerson = await prisma.person.create({
-            data: {
-              firstName,
-              lastName,
-              email,
-              preferredName,
-              title,
-              expertise: { connect: expertise.map((id) => ({ id })) },
-              projects: { connect: projects?.map((id) => ({ id })) },
-            },
-          })
+        const newPerson = await prisma.person.create({
+          data: {
+            firstName,
+            lastName,
+            email,
+            preferredName,
+            title,
+            expertise: { connect: expertise.map((id) => ({ id })) },
+            projects: { connect: projects?.map((id) => ({ id })) },
+          },
+        })
 
-          await prisma.personSkill.createMany({
-            data: personSkills.map(({ skillId, level }) => ({ skillId, level, personId: newPerson.id })),
-          })
+        await prisma.personSkill.createMany({
+          data: personSkills.map(({ skillId, level }) => ({ skillId, level, personId: newPerson.id })),
+        })
 
-          return `Created ${preferredName || firstName} ${lastName}`
-        } catch (error) {
-          return error
-        }
+        return `Created ${preferredName || firstName} ${lastName}`
       }
     ),
 })

@@ -8,14 +8,14 @@ import { RouterOutput } from '@/type/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 import { css } from '@emotion/react'
-import { Empty, Spin, Table, Tag } from 'antd'
+import { App, Empty, Spin, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import { EditOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
-import { isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
+import { displayName, isCompleted, isOnGoing, renderProjectStatus } from '@/utils/general'
 import ActionButton from '@/components/common/ActionButton'
 
 /* Types */
@@ -66,9 +66,7 @@ const columns: ColumnsType<TProjectInEmployeeData> = [
 const ProjectsStats = ({ value, label, color, isLoading }: TProjectsStatsProps) => (
   <div>
     {isLoading ? (
-      <div css={{ height: 41, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Spin />
-      </div>
+      <Spin css={{ height: 54, display: 'flex', justifyContent: 'center', alignItems: 'center' }} />
     ) : (
       <p css={{ color, fontSize: 36, fontWeight: 700, textAlign: 'center' }}>{value}</p>
     )}
@@ -77,6 +75,7 @@ const ProjectsStats = ({ value, label, color, isLoading }: TProjectsStatsProps) 
 )
 
 const EmployeeDetail = () => {
+  const { notification } = App.useApp()
   const { query } = useRouter()
   const trpcUtils = trpc.useUtils()
   const {
@@ -90,11 +89,12 @@ const EmployeeDetail = () => {
     }
   )
 
-  const { mutateAsync: mutatePerson, isLoading: isUpdating } = trpc.updateAPerson.useMutation({
-    onSuccess: () => {
+  const { mutate: mutatePerson, isLoading: isUpdating } = trpc.updateAPerson.useMutation({
+    onSuccess: (_, person) => {
       setShouldOpen(false)
       refetchEmployee()
       trpcUtils.findManyPerson.invalidate()
+      notification.success({ message: `Updated ${displayName(person)}` })
     },
   })
 
@@ -114,20 +114,40 @@ const EmployeeDetail = () => {
       style={css({ display: 'flex', flexDirection: 'column', paddingBottom: 50 })}
     >
       {/* Employee Info */}
-      <div css={[STYLES.cardCtn, css({ flexDirection: 'row', paddingLeft: 120, paddingRight: 120 })]}>
+      <div
+        css={[
+          STYLES.cardCtn,
+          css({
+            flexDirection: 'row',
+            paddingLeft: 120,
+            paddingRight: 120,
+            '@media (max-width: 1200px)': {
+              paddingLeft: 25,
+              paddingRight: 25,
+            },
+          }),
+        ]}
+      >
         {isLoadingDetail || !data ? (
-          <div css={{ height: 166, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Spin />
-          </div>
+          <Spin css={{ height: 190, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />
         ) : (
-          <>
+          <div
+            css={{
+              display: 'flex',
+              flex: 1,
+              gap: 120,
+              '@media (max-width: 1200px)': {
+                gap: 35,
+                flexDirection: 'column',
+              },
+            }}
+          >
             <div
               css={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginRight: 120,
               }}
             >
               <Avatar
@@ -137,14 +157,22 @@ const EmployeeDetail = () => {
                 fontSize={28}
               />
               <p css={{ marginTop: 20, fontSize: 18, fontWeight: 700 }}>{data.preferredName || data.firstName}</p>
-              <p>{data.lastName}</p>
+              <p css={{ fontSize: 18 }}>{data.lastName}</p>
             </div>
-            <div css={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 30 }}>
+            <div
+              css={{
+                flex: 1,
+                display: 'grid',
+                gridTemplateColumns: `repeat(auto-fit, 220px)`,
+                justifyContent: 'center',
+                gap: 30,
+              }}
+            >
               <InfoItem label="Title" value={data.title} />
               <InfoItem label="Email" value={data.email} />
               <InfoItem label="Expertise" value={data.expertise?.map((item) => item.name).join(', ')} />
               <InfoItem
-                label="First Name/Preferred Name"
+                label="First/Preferred Name"
                 value={`${data.firstName}${data.preferredName && '/' + data.preferredName}`}
               />
 
@@ -157,20 +185,33 @@ const EmployeeDetail = () => {
                 value={dayjs(data.createdAt).format(DATE_FORMAT_STRINGS.yearMonthDayHrMin)}
               />
             </div>
-          </>
+          </div>
         )}
       </div>
 
-      <div css={{ flex: 1, marginTop: 25, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 25 }}>
+      <div
+        css={{
+          flex: 1,
+          marginTop: 25,
+          display: 'grid',
+          gridTemplateColumns: `1fr 1fr`,
+          gap: 25,
+          '@media (max-width: 1200px)': {
+            gridTemplateColumns: '1fr',
+          },
+        }}
+      >
         {/* Projects Info */}
         <div css={STYLES.cardCtn}>
           <h2 css={[STYLES.sectionTitle, css({ fontSize: 20 })]}>PROJECTS</h2>
           <div
             css={{
               backgroundColor: COLORS.lightblue,
-              padding: '25px 115px',
+              padding: '25px 0',
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
+              gap: 30,
+              flexWrap: 'wrap',
               borderRadius: SIZES.borderRadius,
             }}
           >

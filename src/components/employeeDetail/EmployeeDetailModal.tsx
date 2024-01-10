@@ -1,9 +1,10 @@
-import { Form, Input, Modal, Select } from 'antd'
+import { App, Form, Input, Modal, Select, SelectProps } from 'antd'
 import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { RouterInput, TPersonData } from '@/type/general'
+import { displayName } from '@/utils/general'
 
 /* Types */
 type TPersonSkills = TPersonData['personSkills'][0]
@@ -36,6 +37,7 @@ type TEmployeeDetailModal = {
 /* Styles */
 const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
 
+/* Functions */
 const renderSelectedProjects = (personData: TPersonData | undefined) => {
   if (!personData) return []
   const { projects } = personData
@@ -43,6 +45,10 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
   return projects.map((project) => project.id)
 }
 
+/* Constants */
+const selectOptions: SelectProps = { mode: 'multiple', allowClear: true, optionFilterProp: 'label' }
+
+/* Components */
 const EmployeeDetailModal = ({
   shouldOpen,
   setShouldOpen,
@@ -52,6 +58,7 @@ const EmployeeDetailModal = ({
   isEdit,
 }: TEmployeeDetailModal) => {
   const [form] = Form.useForm<TPersonDataForm>()
+  const { notification } = App.useApp()
   const { setFieldsValue, resetFields } = form
 
   const [personSkills, setPersonSkills] = useState<TPersonSkills[]>([])
@@ -59,6 +66,7 @@ const EmployeeDetailModal = ({
   const projects = trpc.findManyProject.useQuery()
   const expertise = trpc.findManyExpertise.useQuery()
   const skills = trpc.findManySkill.useQuery()
+  const employees = trpc.findManyPerson.useQuery()
 
   const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
 
@@ -80,11 +88,7 @@ const EmployeeDetailModal = ({
 
   return (
     <Modal
-      title={
-        isEdit
-          ? `Edit ${selectedPerson?.preferredName || selectedPerson?.firstName} ${selectedPerson?.lastName}`
-          : 'Add an Employee'
-      }
+      title={isEdit ? `Edit ${displayName(selectedPerson)}` : 'Add an Employee'}
       open={shouldOpen}
       centered={true}
       onCancel={() => {
@@ -120,6 +124,14 @@ const EmployeeDetailModal = ({
           }
 
           // When is add
+          if (employees.data?.find((person) => person.email === email)) {
+            notification.error({
+              message: 'Invalid Email',
+              description: 'This email already exists, please use a different one.',
+            })
+            return
+          }
+
           callbackFunc({
             firstName,
             lastName,
@@ -151,15 +163,14 @@ const EmployeeDetailModal = ({
             <Input />
           </Form.Item>
 
-          <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+          <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]} validateDebounce={400}>
             <Input disabled={isEdit} />
           </Form.Item>
         </div>
 
         <Form.Item name="projects" label="Projects">
           <Select
-            mode="multiple"
-            allowClear
+            {...selectOptions}
             placeholder="Select projects"
             loading={projects.isLoading}
             disabled={projects.isLoading}
@@ -169,8 +180,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="expertise" label="Expertise" rules={[{ required: true }]} initialValue={[]}>
           <Select
-            mode="multiple"
-            allowClear
+            {...selectOptions}
             loading={expertise.isLoading}
             disabled={expertise.isLoading}
             placeholder="Select expertise"
@@ -180,8 +190,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="personSkills" label="Skills">
           <Select
-            mode="multiple"
-            allowClear
+            {...selectOptions}
             placeholder="Select skills"
             loading={skills.isLoading}
             disabled={skills.isLoading}

@@ -101,7 +101,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         css={{
           display: 'flex',
           height: '100svh',
-          '@media(max-width: 680px)': {
+          '@media(max-width: 760px)': {
             display: 'none',
           },
         }}
@@ -128,10 +128,10 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
 
       <section
         css={css({
-          '@media(min-width: 680px)': {
+          '@media(min-width: 760px)': {
             display: 'none',
           },
-          '@media(max-width: 680px)': {
+          '@media(max-width: 760px)': {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
@@ -144,7 +144,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         })}
       >
         <h1>Oops!</h1>
-        <p>Mobile view will come later, for a better user experience please use the app in a 680px or larger screen</p>
+        <p>Mobile view will come later, for a better user experience please use the app in a 760px or larger screen</p>
       </section>
     </>
   )

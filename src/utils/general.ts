@@ -11,3 +11,12 @@ export const isOnGoing = (startDate: string, endDate: string) =>
   dayjs().isSameOrAfter(dayjs(startDate)) && dayjs().isSameOrBefore(dayjs(endDate))
 
 export const isCompleted = (endDate: string) => dayjs().isAfter(endDate)
+
+type TDisplayNameArgs = {
+  firstName: string
+  lastName: string
+  preferredName: string
+  onlyFirstName?: boolean
+}
+export const displayName = ({ firstName, preferredName, lastName, onlyFirstName }: TDisplayNameArgs) =>
+  `${preferredName || firstName} ${onlyFirstName ? '' : lastName}`
