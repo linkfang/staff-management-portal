@@ -66,9 +66,7 @@ const columns: ColumnsType<TProjectInEmployeeData> = [
 const ProjectsStats = ({ value, label, color, isLoading }: TProjectsStatsProps) => (
   <div>
     {isLoading ? (
-      <div css={{ height: 41, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Spin />
-      </div>
+      <Spin css={{ height: 54, display: 'flex', justifyContent: 'center', alignItems: 'center' }} />
     ) : (
       <p css={{ color, fontSize: 36, fontWeight: 700, textAlign: 'center' }}>{value}</p>
     )}
@@ -131,9 +129,7 @@ const EmployeeDetail = () => {
         ]}
       >
         {isLoadingDetail || !data ? (
-          <div css={{ height: 166, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Spin />
-          </div>
+          <Spin css={{ height: 190, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />
         ) : (
           <div
             css={{
@@ -161,7 +157,7 @@ const EmployeeDetail = () => {
                 fontSize={28}
               />
               <p css={{ marginTop: 20, fontSize: 18, fontWeight: 700 }}>{data.preferredName || data.firstName}</p>
-              <p>{data.lastName}</p>
+              <p css={{ fontSize: 18 }}>{data.lastName}</p>
             </div>
             <div
               css={{

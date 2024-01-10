@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import { useQueryClient } from '@tanstack/react-query'
-import { App, notification } from 'antd'
+import { App, ConfigProvider, notification } from 'antd'
 
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
@@ -24,12 +24,14 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   })
 
   return (
-    <App>
-      <NavLayout>
-        <Component {...pageProps} />
-      </NavLayout>
-      {contextHolder}
-    </App>
+    <ConfigProvider theme={{ token: { fontSize: 16 }, components: { Table: { fontSize: 14 } } }}>
+      <App>
+        <NavLayout>
+          <Component {...pageProps} />
+        </NavLayout>
+        {contextHolder}
+      </App>
+    </ConfigProvider>
   )
 }
 
