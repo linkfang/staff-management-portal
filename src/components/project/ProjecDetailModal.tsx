@@ -1,9 +1,15 @@
-import { DatePicker, Form, Input, Modal, Select, SelectProps } from 'antd'
+import { DatePicker, Form, Input, Modal, Select } from 'antd'
 import { useEffect } from 'react'
 import { trpc } from '@/utils/trpc'
 import { displayName } from '@/utils/general'
+import dayjs, { Dayjs } from 'dayjs'
+import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
+import { RouterInput, TProjectData } from '@/type/general'
 
 /* Types */
+type TProjectDataCreate = RouterInput['createAProject']
+type TProjectDataUpdate = RouterInput['updateAProject']
+type TProjectDataForm = Omit<TProjectDataCreate, 'startDate' | 'endDate'> & { startDate: Dayjs; endDate: Dayjs }
 
 type TProjectDetailModal = {
   shouldOpen: boolean
@@ -14,24 +20,19 @@ type TProjectDetailModal = {
   | {
       isEdit: true
       // eslint-disable-next-line no-unused-vars
-      callbackFunc: (project: any) => void
-      selectedProject: any
+      callbackFunc: (project: TProjectDataUpdate) => void
+      selectedProject: TProjectData
     }
   | {
       isEdit: false
       // eslint-disable-next-line no-unused-vars
-      callbackFunc: (project: any) => void
+      callbackFunc: (project: TProjectDataCreate) => void
       selectedProject: undefined
     }
 )
 
 /* Styles */
 const formItemRow = { display: 'grid', gap: 25, gridTemplateColumns: '1fr 1fr' } as const
-
-/* Functions */
-
-/* Constants */
-const selectOptions: SelectProps = { mode: 'multiple', allowClear: true, optionFilterProp: 'label' }
 
 /* Components */
 const ProjectDetailModal = ({
@@ -42,8 +43,8 @@ const ProjectDetailModal = ({
   callbackFunc,
   isEdit,
 }: TProjectDetailModal) => {
-  const [form] = Form.useForm<any>()
-  const { resetFields } = form
+  const [form] = Form.useForm<TProjectDataForm>()
+  const { setFieldsValue, resetFields } = form
 
   const projects = trpc.findManyProject.useQuery()
   const expertise = trpc.findManyExpertise.useQuery()
@@ -52,11 +53,19 @@ const ProjectDetailModal = ({
 
   useEffect(() => {
     if (isEdit) {
+      setFieldsValue({
+        ...selectedProject,
+        startDate: dayjs(selectedProject.startDate),
+        endDate: dayjs(selectedProject.endDate),
+        skills: selectedProject.skills.map((item) => item.id),
+        persons: selectedProject.persons.map((item) => item.id),
+        expertise: selectedProject.fields.map((item) => item.id),
+      })
       return
     }
 
     if (shouldOpen) resetFields()
-  }, [resetFields, isEdit, shouldOpen])
+  }, [resetFields, setFieldsValue, selectedProject, isEdit, shouldOpen])
 
   return (
     <Modal
@@ -79,26 +88,22 @@ const ProjectDetailModal = ({
         form={form}
         layout="vertical"
         css={{ maxHeight: 555, overflow: 'auto', margin: '35px 0' }}
-        onFinish={({ name, customer, description, startDate, endDate, expertise, skills, persons }) => {
+        onFinish={(project) => {
           if (isEdit) {
             callbackFunc({
+              ...project,
               id: selectedProject.id,
+              startDate: project.startDate.toISOString(),
+              endDate: project.endDate.toISOString(),
             })
-
             return
           }
 
           // When is add
           callbackFunc({
-            name,
-            customer,
-            description,
-            projects,
-            startDate,
-            endDate,
-            expertise,
-            skills,
-            persons,
+            ...project,
+            startDate: project.startDate.toISOString(),
+            endDate: project.endDate.toISOString(),
           })
         }}
       >
@@ -128,7 +133,7 @@ const ProjectDetailModal = ({
 
         <Form.Item name="skills" label="Skills" rules={[{ required: true }]} initialValue={[]}>
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             placeholder="Select skills"
             loading={projects.isLoading}
             disabled={projects.isLoading}
@@ -138,7 +143,7 @@ const ProjectDetailModal = ({
 
         <Form.Item name="expertise" label="Expertise" rules={[{ required: true }]} initialValue={[]}>
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             loading={expertise.isLoading}
             disabled={expertise.isLoading}
             placeholder="Select expertise"
@@ -148,7 +153,7 @@ const ProjectDetailModal = ({
 
         <Form.Item name="persons" label="Team members" initialValue={[]}>
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             loading={expertise.isLoading}
             disabled={expertise.isLoading}
             placeholder="Select expertise"

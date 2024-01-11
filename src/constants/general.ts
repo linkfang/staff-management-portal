@@ -1,3 +1,5 @@
+import { SelectProps } from 'antd'
+
 export const DATE_FORMAT_STRINGS = {
   yearMonthDay: 'YYYY-MM-DD',
   yearMonthDayHrMin: 'YYYY-MM-DD HH:mm',
@@ -22,3 +24,5 @@ export const statusToColorObj: Record<keyof typeof PROJECT_STATUSES, string> = {
   'On Going': 'blue',
   Completed: 'green',
 } as const
+
+export const DEFAULT_SELECT_OPTIONS: SelectProps = { mode: 'multiple', allowClear: true, optionFilterProp: 'label' }

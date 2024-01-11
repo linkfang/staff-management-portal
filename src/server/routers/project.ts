@@ -41,4 +41,38 @@ export const projectsRouter = router({
         })
       }
     ),
+  updateAProject: procedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        customer: z.string(),
+        description: z.string(),
+        startDate: z.string(),
+        endDate: z.string(),
+        skills: z.array(z.number()),
+        expertise: z.array(z.number()),
+        persons: z.array(z.number()),
+      })
+    )
+    .mutation(
+      async ({
+        ctx: { prisma },
+        input: { id, name, customer, description, startDate, endDate, skills, expertise, persons },
+      }) => {
+        await prisma.project.update({
+          where: { id },
+          data: {
+            name,
+            customer,
+            description,
+            startDate,
+            endDate,
+            skills: { set: skills.map((id) => ({ id })) },
+            fields: { set: expertise.map((id) => ({ id })) },
+            persons: { set: persons.map((id) => ({ id })) },
+          },
+        })
+      }
+    ),
 })

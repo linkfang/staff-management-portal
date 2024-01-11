@@ -19,7 +19,6 @@ const columns: ColumnsType<TProjectData> = [
     title: 'Status',
     width: 120,
     sorter: (a, b) => a.startDate.localeCompare(b.startDate),
-
     render: (project: TProjectData) => {
       const status = renderProjectStatus(project)
       return (
@@ -37,7 +36,6 @@ const columns: ColumnsType<TProjectData> = [
   },
   {
     title: 'End Date',
-    dataIndex: 'endDate',
     width: 120,
     sorter: (a, b) => a.endDate.localeCompare(b.endDate),
     render: ({ endDate }: TProjectData) => renderMonoDateLabel(endDate),
@@ -63,21 +61,22 @@ const columns: ColumnsType<TProjectData> = [
       <>{persons.map((person) => person.preferredName || person.firstName).join(', ')}</>
     ),
   },
-  {
-    title: 'Action',
-    width: 180,
-    render: () => (
-      <div css={{ display: 'flex', gap: 10 }}>
-        <Button>Edit</Button>
-        <Button>Delete</Button>
-      </div>
-    ),
-  },
 ]
+
+const renderActionColumn = (onEdit: (project: TProjectData) => void, onDelete: (project: TProjectData) => void) => ({
+  title: 'Action',
+  width: 180,
+  render: (project: TProjectData) => (
+    <div css={{ display: 'flex', gap: 10 }}>
+      <Button onClick={() => onEdit(project)}>Edit</Button>
+      <Button onClick={() => onDelete(project)}>Delete</Button>
+    </div>
+  ),
+})
 
 const ProjectsPage = () => {
   const [shouldOpen, setShouldOpen] = useState(false)
-  const [selectedProject, setSelectedProject] = useState()
+  const [selectedProject, setSelectedProject] = useState<TProjectData>()
   const { notification } = App.useApp()
 
   const { data, isLoading, refetch: refetchProjects } = trpc.findManyProject.useQuery()
@@ -88,9 +87,25 @@ const ProjectsPage = () => {
     },
   })
 
+  const { mutate: updateProject } = trpc.updateAProject.useMutation({
+    onSuccess: (_, project) => {
+      notification.success({ message: `Updated ${project.name}` })
+      onMutationSuccess()
+    },
+  })
+
   const onMutationSuccess = () => {
     setShouldOpen(false)
     refetchProjects()
+  }
+
+  const onEditClick = (project: TProjectData) => {
+    setSelectedProject(project)
+    setShouldOpen(true)
+  }
+
+  const onDeleteClick = (project: TProjectData) => {
+    setSelectedProject(project)
   }
 
   return (
@@ -110,18 +125,27 @@ const ProjectsPage = () => {
     >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
-        columns={columns}
+        columns={[...columns, renderActionColumn(onEditClick, onDeleteClick)]}
         dataSource={data ?? []}
         loading={isLoading}
         rowKey="id"
       />
 
-      <ProjectDetailModal
-        isEdit={false}
-        callbackFunc={createProject}
-        selectedProject={selectedProject}
-        {...{ shouldOpen, setShouldOpen, isLoading }}
-      />
+      {selectedProject ? (
+        <ProjectDetailModal
+          isEdit={true}
+          callbackFunc={updateProject}
+          selectedProject={selectedProject}
+          {...{ shouldOpen, setShouldOpen, isLoading }}
+        />
+      ) : (
+        <ProjectDetailModal
+          isEdit={false}
+          callbackFunc={createProject}
+          selectedProject={selectedProject}
+          {...{ shouldOpen, setShouldOpen, isLoading }}
+        />
+      )}
     </PageLayout>
   )
 }

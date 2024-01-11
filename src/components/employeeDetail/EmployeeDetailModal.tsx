@@ -1,10 +1,11 @@
-import { App, Form, Input, Modal, Select, SelectProps } from 'antd'
+import { App, Form, Input, Modal, Select } from 'antd'
 import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { RouterInput, TPersonData } from '@/type/general'
 import { displayName } from '@/utils/general'
+import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
 
 /* Types */
 type TPersonSkills = TPersonData['personSkills'][0]
@@ -44,9 +45,6 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
 
   return projects.map((project) => project.id)
 }
-
-/* Constants */
-const selectOptions: SelectProps = { mode: 'multiple', allowClear: true, optionFilterProp: 'label' }
 
 /* Components */
 const EmployeeDetailModal = ({
@@ -170,7 +168,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="projects" label="Projects">
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             placeholder="Select projects"
             loading={projects.isLoading}
             disabled={projects.isLoading}
@@ -180,7 +178,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="expertise" label="Expertise" rules={[{ required: true }]} initialValue={[]}>
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             loading={expertise.isLoading}
             disabled={expertise.isLoading}
             placeholder="Select expertise"
@@ -190,7 +188,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="personSkills" label="Skills">
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             placeholder="Select skills"
             loading={skills.isLoading}
             disabled={skills.isLoading}
