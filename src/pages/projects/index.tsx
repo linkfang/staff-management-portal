@@ -5,11 +5,11 @@ import { statusToColorObj } from '@/constants/general'
 import { renderProjectStatus } from '@/utils/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
-import { App, Button, Table, Tag } from 'antd'
+import { App, Button, Popconfirm, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { AppstoreAddOutlined } from '@ant-design/icons'
 import { TProjectData } from '@/type/general'
-import ProjectDetailModal from '@/components/project/ProjecDetailModal'
+import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 import { useState } from 'react'
 
 const columns: ColumnsType<TProjectData> = [
@@ -70,7 +70,9 @@ const renderActionColumn = (onEdit: (project: TProjectData) => void, onDelete: (
   render: (project: TProjectData) => (
     <div css={{ display: 'flex', gap: 10 }}>
       <Button onClick={() => onEdit(project)}>Edit</Button>
-      <Button onClick={() => onDelete(project)}>Delete</Button>
+      <Popconfirm placement="left" title={`Delete Project - ${project.name}?`} onConfirm={() => onDelete(project)}>
+        <Button>Delete</Button>
+      </Popconfirm>
     </div>
   ),
 })
@@ -95,6 +97,13 @@ const ProjectsPage = () => {
     },
   })
 
+  const { mutate: deleteProject } = trpc.deleteAProject.useMutation({
+    onSuccess: (project) => {
+      notification.success({ message: `Deleted ${project.name}` })
+      onMutationSuccess()
+    },
+  })
+
   const onMutationSuccess = () => {
     setShouldOpen(false)
     refetchProjects()
@@ -105,9 +114,7 @@ const ProjectsPage = () => {
     setShouldOpen(true)
   }
 
-  const onDeleteClick = (project: TProjectData) => {
-    setSelectedProject(project)
-  }
+  const onDeleteClick = (project: TProjectData) => deleteProject(project.id)
 
   return (
     <PageLayout

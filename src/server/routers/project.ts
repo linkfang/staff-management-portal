@@ -39,6 +39,8 @@ export const projectsRouter = router({
             persons: { connect: persons.map((id) => ({ id })) },
           },
         })
+
+        return `Added ${name}`
       }
     ),
   updateAProject: procedure
@@ -73,6 +75,12 @@ export const projectsRouter = router({
             persons: { set: persons.map((id) => ({ id })) },
           },
         })
+
+        return `Updated ${name}`
       }
     ),
+  deleteAProject: procedure.input(z.number()).mutation(async ({ ctx: { prisma }, input }) => {
+    const deletedProject = await prisma.project.delete({ where: { id: input } })
+    return deletedProject
+  }),
 })
