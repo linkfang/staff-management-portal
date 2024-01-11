@@ -1,6 +1,7 @@
-import { App, DatePicker, Form, Input, Modal, Select, SelectProps } from 'antd'
+import { DatePicker, Form, Input, Modal, Select, SelectProps } from 'antd'
 import { useEffect } from 'react'
 import { trpc } from '@/utils/trpc'
+import { displayName } from '@/utils/general'
 
 /* Types */
 
@@ -42,8 +43,7 @@ const ProjectDetailModal = ({
   isEdit,
 }: TProjectDetailModal) => {
   const [form] = Form.useForm<any>()
-  const { notification } = App.useApp()
-  const { setFieldsValue, resetFields } = form
+  const { resetFields } = form
 
   const projects = trpc.findManyProject.useQuery()
   const expertise = trpc.findManyExpertise.useQuery()
@@ -55,8 +55,8 @@ const ProjectDetailModal = ({
       return
     }
 
-    resetFields()
-  }, [isEdit, setFieldsValue, resetFields])
+    if (shouldOpen) resetFields()
+  }, [resetFields, isEdit, shouldOpen])
 
   return (
     <Modal
@@ -78,38 +78,27 @@ const ProjectDetailModal = ({
       <Form
         form={form}
         layout="vertical"
-        css={{ maxHeight: 550, overflow: 'auto', margin: '35px 0' }}
-        onFinish={async ({ firstName, projects, lastName, preferredName, title, expertise, email }) => {
+        css={{ maxHeight: 555, overflow: 'auto', margin: '35px 0' }}
+        onFinish={({ name, customer, description, startDate, endDate, expertise, skills, persons }) => {
           if (isEdit) {
             callbackFunc({
               id: selectedProject.id,
-              firstName,
-              lastName,
-              preferredName,
-              projects,
-              title,
-              expertise,
             })
+
             return
           }
 
           // When is add
-          if (employees.data?.find((person) => person.email === email)) {
-            notification.error({
-              message: 'Invalid Email',
-              description: 'This email already exists, please use a different one.',
-            })
-            return
-          }
-
           callbackFunc({
-            firstName,
-            lastName,
-            preferredName,
+            name,
+            customer,
+            description,
             projects,
-            title,
+            startDate,
+            endDate,
             expertise,
-            email,
+            skills,
+            persons,
           })
         }}
       >
@@ -154,6 +143,21 @@ const ProjectDetailModal = ({
             disabled={expertise.isLoading}
             placeholder="Select expertise"
             options={expertise.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []}
+          />
+        </Form.Item>
+
+        <Form.Item name="persons" label="Team members" initialValue={[]}>
+          <Select
+            {...selectOptions}
+            loading={expertise.isLoading}
+            disabled={expertise.isLoading}
+            placeholder="Select expertise"
+            options={
+              employees.data?.map((person) => ({
+                label: `${displayName(person)} (${person.email})`,
+                value: person.id,
+              })) ?? []
+            }
           />
         </Form.Item>
       </Form>

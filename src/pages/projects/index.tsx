@@ -5,7 +5,7 @@ import { statusToColorObj } from '@/constants/general'
 import { renderProjectStatus } from '@/utils/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
-import { Button, Table, Tag } from 'antd'
+import { App, Button, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { AppstoreAddOutlined } from '@ant-design/icons'
 import { TProjectData } from '@/type/general'
@@ -76,10 +76,22 @@ const columns: ColumnsType<TProjectData> = [
 ]
 
 const ProjectsPage = () => {
-  const { data, isLoading } = trpc.findManyProject.useQuery()
-
   const [shouldOpen, setShouldOpen] = useState(false)
   const [selectedProject, setSelectedProject] = useState()
+  const { notification } = App.useApp()
+
+  const { data, isLoading, refetch: refetchProjects } = trpc.findManyProject.useQuery()
+  const { mutate: createProject } = trpc.createAProject.useMutation({
+    onSuccess: (_, project) => {
+      notification.success({ message: `Added ${project.name}` })
+      onMutationSuccess()
+    },
+  })
+
+  const onMutationSuccess = () => {
+    setShouldOpen(false)
+    refetchProjects()
+  }
 
   return (
     <PageLayout
@@ -101,12 +113,12 @@ const ProjectsPage = () => {
         columns={columns}
         dataSource={data ?? []}
         loading={isLoading}
-        rowKey="name"
+        rowKey="id"
       />
 
       <ProjectDetailModal
         isEdit={false}
-        callbackFunc={() => console.log('hi')}
+        callbackFunc={createProject}
         selectedProject={selectedProject}
         {...{ shouldOpen, setShouldOpen, isLoading }}
       />
