@@ -146,25 +146,25 @@ const EmployeeDetailModal = ({
       >
         <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
           <Form.Item name="firstName" label="First Name" rules={[{ required: true }]}>
-            <Input />
+            <Input placeholder="First name" />
           </Form.Item>
 
           <Form.Item name="lastName" label="Last Name" rules={[{ required: true }]}>
-            <Input />
+            <Input placeholder="Last name" />
           </Form.Item>
 
           <Form.Item name="preferredName" label="Preferred Name" initialValue="">
-            <Input />
+            <Input placeholder="Preferred name" />
           </Form.Item>
         </div>
 
         <div css={formItemRow}>
           <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input />
+            <Input placeholder="Job title" />
           </Form.Item>
 
           <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]} validateDebounce={400}>
-            <Input disabled={isEdit} />
+            <Input placeholder="some@example.com" disabled={isEdit} />
           </Form.Item>
         </div>
 

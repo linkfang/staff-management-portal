@@ -24,7 +24,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   })
 
   return (
-    <ConfigProvider theme={{ token: { fontSize: 16 }, components: { Table: { fontSize: 14 } } }}>
+    <ConfigProvider
+      theme={{ token: { fontSize: 16 }, components: { Table: { fontSize: 14 }, DatePicker: { fontSize: 14 } } }}
+    >
       <App>
         <NavLayout>
           <Component {...pageProps} />

@@ -6,3 +6,5 @@ export type TEmotionCSS = Interpolation<Theme>
 export type RouterOutput = inferRouterOutputs<AppRouter>
 export type TPersonData = RouterOutput['findManyPerson'][0]
 export type RouterInput = inferRouterInputs<AppRouter>
+
+export type TProjectData = RouterOutput['findManyProject'][0]

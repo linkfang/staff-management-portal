@@ -1,14 +1,16 @@
+import ActionButton from '@/components/common/ActionButton'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { statusToColorObj } from '@/constants/general'
-import { RouterOutput } from '@/type/general'
 import { renderProjectStatus } from '@/utils/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 import { Button, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-
-type TProjectData = RouterOutput['findManyProject'][0]
+import { AppstoreAddOutlined } from '@ant-design/icons'
+import { TProjectData } from '@/type/general'
+import ProjectDetailModal from '@/components/project/ProjecDetailModal'
+import { useState } from 'react'
 
 const columns: ColumnsType<TProjectData> = [
   { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left', ellipsis: true },
@@ -75,14 +77,38 @@ const columns: ColumnsType<TProjectData> = [
 
 const ProjectsPage = () => {
   const { data, isLoading } = trpc.findManyProject.useQuery()
+
+  const [shouldOpen, setShouldOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState()
+
   return (
-    <PageLayout title="Projects">
+    <PageLayout
+      title="Projects"
+      actions={
+        <>
+          <ActionButton
+            icon={<AppstoreAddOutlined />}
+            action={() => {
+              setSelectedProject(undefined)
+              setShouldOpen(true)
+            }}
+          />
+        </>
+      }
+    >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
         columns={columns}
         dataSource={data ?? []}
         loading={isLoading}
         rowKey="name"
+      />
+
+      <ProjectDetailModal
+        isEdit={false}
+        callbackFunc={() => console.log('hi')}
+        selectedProject={selectedProject}
+        {...{ shouldOpen, setShouldOpen, isLoading }}
       />
     </PageLayout>
   )
