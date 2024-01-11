@@ -63,6 +63,7 @@ const columns: ColumnsType<TProjectData> = [
   },
 ]
 
+// eslint-disable-next-line no-unused-vars
 const renderActionColumn = (onEdit: (project: TProjectData) => void, onDelete: (project: TProjectData) => void) => ({
   title: 'Action',
   width: 180,
