@@ -8,9 +8,11 @@ import { trpc } from '@/utils/trpc'
 import { App, Button, Popconfirm, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { AppstoreAddOutlined } from '@ant-design/icons'
-import { TProjectData } from '@/type/general'
+import { RouterOutput, TProjectData } from '@/type/general'
 import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 import { useState } from 'react'
+
+type TProjectResDeleted = RouterOutput['deleteAProject']
 
 const columns: ColumnsType<TProjectData> = [
   { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left', ellipsis: true },
@@ -63,8 +65,12 @@ const columns: ColumnsType<TProjectData> = [
   },
 ]
 
-// eslint-disable-next-line no-unused-vars
-const renderActionColumn = (onEdit: (project: TProjectData) => void, onDelete: (project: TProjectData) => void) => ({
+const renderActionColumn = (
+  // eslint-disable-next-line no-unused-vars
+  onEdit: (project: TProjectData) => void,
+  // eslint-disable-next-line no-unused-vars
+  onDelete: (project: TProjectData) => Promise<TProjectResDeleted>
+) => ({
   title: 'Action',
   width: 180,
   render: (project: TProjectData) => (
@@ -82,22 +88,22 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<TProjectData>()
   const { notification } = App.useApp()
 
-  const { data, isLoading, refetch: refetchProjects } = trpc.findManyProject.useQuery()
-  const { mutate: createProject } = trpc.createAProject.useMutation({
+  const { data, isFetching, refetch: refetchProjects } = trpc.findManyProject.useQuery()
+  const { mutate: createProject, isLoading: isCreating } = trpc.createAProject.useMutation({
     onSuccess: (_, project) => {
       notification.success({ message: `Added ${project.name}` })
       onMutationSuccess()
     },
   })
 
-  const { mutate: updateProject } = trpc.updateAProject.useMutation({
+  const { mutate: updateProject, isLoading: isUpdating } = trpc.updateAProject.useMutation({
     onSuccess: (_, project) => {
       notification.success({ message: `Updated ${project.name}` })
       onMutationSuccess()
     },
   })
 
-  const { mutate: deleteProject } = trpc.deleteAProject.useMutation({
+  const { mutateAsync: deleteProject } = trpc.deleteAProject.useMutation({
     onSuccess: (project) => {
       notification.success({ message: `Deleted ${project.name}` })
       onMutationSuccess()
@@ -114,7 +120,7 @@ const ProjectsPage = () => {
     setShouldOpen(true)
   }
 
-  const onDeleteClick = (project: TProjectData) => deleteProject(project.id)
+  const onDeleteClick = async (project: TProjectData) => deleteProject(project.id)
 
   return (
     <PageLayout
@@ -135,7 +141,7 @@ const ProjectsPage = () => {
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
         columns={[...columns, renderActionColumn(onEditClick, onDeleteClick)]}
         dataSource={data ?? []}
-        loading={isLoading}
+        loading={isFetching}
         rowKey="id"
       />
 
@@ -144,14 +150,16 @@ const ProjectsPage = () => {
           isEdit={true}
           callbackFunc={updateProject}
           selectedProject={selectedProject}
-          {...{ shouldOpen, setShouldOpen, isLoading }}
+          isLoading={isUpdating}
+          {...{ shouldOpen, setShouldOpen }}
         />
       ) : (
         <ProjectDetailModal
           isEdit={false}
           callbackFunc={createProject}
           selectedProject={selectedProject}
-          {...{ shouldOpen, setShouldOpen, isLoading }}
+          isLoading={isCreating}
+          {...{ shouldOpen, setShouldOpen }}
         />
       )}
     </PageLayout>
