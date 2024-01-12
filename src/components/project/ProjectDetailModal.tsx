@@ -98,7 +98,6 @@ const ProjectDetailModal = ({
             })
             return
           }
-
           // When is add
           callbackFunc({
             ...project,
@@ -122,11 +121,41 @@ const ProjectDetailModal = ({
         </Form.Item>
 
         <div css={formItemRow}>
-          <Form.Item name="startDate" label="Start Date" rules={[{ required: true }]}>
+          <Form.Item
+            name="startDate"
+            label="Start Date"
+            rules={[
+              {
+                required: true,
+                validator: (_, value: Dayjs) => {
+                  const endDate = form.getFieldValue('endDate')
+                  if (endDate && value?.isSameOrAfter(endDate, 'days'))
+                    return Promise.reject('Start date must be less than end date')
+
+                  return Promise.resolve()
+                },
+              },
+            ]}
+          >
             <DatePicker placeholder="Select start date" css={{ width: '100%' }} />
           </Form.Item>
 
-          <Form.Item name="endDate" label="End Date" rules={[{ required: true }]}>
+          <Form.Item
+            name="endDate"
+            label="End Date"
+            rules={[
+              {
+                required: true,
+                validator: (_, value: Dayjs) => {
+                  const startDate = form.getFieldValue('startDate')
+                  if (startDate && value?.isSameOrBefore(startDate, 'days'))
+                    return Promise.reject('End date must be greater than start date')
+
+                  return Promise.resolve()
+                },
+              },
+            ]}
+          >
             <DatePicker placeholder="Select end date" css={{ width: '100%' }} />
           </Form.Item>
         </div>
