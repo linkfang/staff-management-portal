@@ -1,14 +1,18 @@
+import ActionButton from '@/components/common/ActionButton'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { statusToColorObj } from '@/constants/general'
-import { RouterOutput } from '@/type/general'
 import { renderProjectStatus } from '@/utils/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
-import { Button, Table, Tag } from 'antd'
+import { App, Button, Popconfirm, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
+import { AppstoreAddOutlined } from '@ant-design/icons'
+import { RouterOutput, TProjectData } from '@/type/general'
+import ProjectDetailModal from '@/components/project/ProjectDetailModal'
+import { useState } from 'react'
 
-type TProjectData = RouterOutput['findManyProject'][0]
+type TProjectResDeleted = RouterOutput['deleteAProject']
 
 const columns: ColumnsType<TProjectData> = [
   { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left', ellipsis: true },
@@ -17,7 +21,6 @@ const columns: ColumnsType<TProjectData> = [
     title: 'Status',
     width: 120,
     sorter: (a, b) => a.startDate.localeCompare(b.startDate),
-
     render: (project: TProjectData) => {
       const status = renderProjectStatus(project)
       return (
@@ -35,7 +38,6 @@ const columns: ColumnsType<TProjectData> = [
   },
   {
     title: 'End Date',
-    dataIndex: 'endDate',
     width: 120,
     sorter: (a, b) => a.endDate.localeCompare(b.endDate),
     render: ({ endDate }: TProjectData) => renderMonoDateLabel(endDate),
@@ -61,29 +63,105 @@ const columns: ColumnsType<TProjectData> = [
       <>{persons.map((person) => person.preferredName || person.firstName).join(', ')}</>
     ),
   },
-  {
-    title: 'Action',
-    width: 180,
-    render: () => (
-      <div css={{ display: 'flex', gap: 10 }}>
-        <Button>Edit</Button>
-        <Button>Delete</Button>
-      </div>
-    ),
-  },
 ]
 
+const renderActionColumn = (
+  // eslint-disable-next-line no-unused-vars
+  onEdit: (project: TProjectData) => void,
+  // eslint-disable-next-line no-unused-vars
+  onDelete: (project: TProjectData) => Promise<TProjectResDeleted>
+) => ({
+  title: 'Action',
+  width: 180,
+  render: (project: TProjectData) => (
+    <div css={{ display: 'flex', gap: 10 }}>
+      <Button onClick={() => onEdit(project)}>Edit</Button>
+      <Popconfirm placement="left" title={`Delete Project - ${project.name}?`} onConfirm={() => onDelete(project)}>
+        <Button>Delete</Button>
+      </Popconfirm>
+    </div>
+  ),
+})
+
 const ProjectsPage = () => {
-  const { data, isLoading } = trpc.findManyProject.useQuery()
+  const [shouldOpen, setShouldOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<TProjectData>()
+  const { notification } = App.useApp()
+
+  const { data, isFetching, refetch: refetchProjects } = trpc.findManyProject.useQuery()
+  const { mutate: createProject, isLoading: isCreating } = trpc.createAProject.useMutation({
+    onSuccess: (_, project) => {
+      notification.success({ message: `Added ${project.name}` })
+      onMutationSuccess()
+    },
+  })
+
+  const { mutate: updateProject, isLoading: isUpdating } = trpc.updateAProject.useMutation({
+    onSuccess: (_, project) => {
+      notification.success({ message: `Updated ${project.name}` })
+      onMutationSuccess()
+    },
+  })
+
+  const { mutateAsync: deleteProject } = trpc.deleteAProject.useMutation({
+    onSuccess: (project) => {
+      notification.success({ message: `Deleted ${project.name}` })
+      onMutationSuccess()
+    },
+  })
+
+  const onMutationSuccess = () => {
+    setShouldOpen(false)
+    refetchProjects()
+  }
+
+  const onEditClick = (project: TProjectData) => {
+    setSelectedProject(project)
+    setShouldOpen(true)
+  }
+
+  const onDeleteClick = async (project: TProjectData) => deleteProject(project.id)
+
   return (
-    <PageLayout title="Projects">
+    <PageLayout
+      title="Projects"
+      actions={
+        <>
+          <ActionButton
+            icon={<AppstoreAddOutlined />}
+            action={() => {
+              setSelectedProject(undefined)
+              setShouldOpen(true)
+            }}
+          />
+        </>
+      }
+    >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
-        columns={columns}
+        columns={[...columns, renderActionColumn(onEditClick, onDeleteClick)]}
         dataSource={data ?? []}
-        loading={isLoading}
-        rowKey="name"
+        loading={isFetching}
+        rowKey="id"
       />
+
+      {selectedProject ? (
+        <ProjectDetailModal
+          isEdit={true}
+          callbackFunc={updateProject}
+          selectedProject={selectedProject}
+          isLoading={isUpdating}
+          {...{ shouldOpen, setShouldOpen }}
+        />
+      ) : (
+        <ProjectDetailModal
+          isEdit={false}
+          callbackFunc={createProject}
+          selectedProject={selectedProject}
+          isLoading={isCreating}
+          {...{ shouldOpen, setShouldOpen }}
+        />
+      )}
     </PageLayout>
   )
 }

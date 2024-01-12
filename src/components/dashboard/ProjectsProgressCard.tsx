@@ -9,7 +9,11 @@ const ProjectsProgressCard = ({ customer, projectTitle, progress }: TProjectsPro
   const [percent, setPercentage] = useState(0)
   useEffect(() => {
     // To get an animated effect for progress bar
-    setPercentage(progress)
+    const timer = setTimeout(() => setPercentage(progress), 10)
+
+    return () => {
+      clearTimeout(timer)
+    }
   }, [progress])
 
   return (

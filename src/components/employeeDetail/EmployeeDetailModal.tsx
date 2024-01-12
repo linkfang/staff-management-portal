@@ -1,10 +1,11 @@
-import { App, Form, Input, Modal, Select, SelectProps } from 'antd'
+import { App, Form, Input, Modal, Select } from 'antd'
 import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { RouterInput, TPersonData } from '@/type/general'
 import { displayName } from '@/utils/general'
+import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
 
 /* Types */
 type TPersonSkills = TPersonData['personSkills'][0]
@@ -44,9 +45,6 @@ const renderSelectedProjects = (personData: TPersonData | undefined) => {
 
   return projects.map((project) => project.id)
 }
-
-/* Constants */
-const selectOptions: SelectProps = { mode: 'multiple', allowClear: true, optionFilterProp: 'label' }
 
 /* Components */
 const EmployeeDetailModal = ({
@@ -146,31 +144,31 @@ const EmployeeDetailModal = ({
       >
         <div css={{ ...formItemRow, gridTemplateColumns: '1fr 1fr 1fr' }}>
           <Form.Item name="firstName" label="First Name" rules={[{ required: true }]}>
-            <Input />
+            <Input placeholder="First name" />
           </Form.Item>
 
           <Form.Item name="lastName" label="Last Name" rules={[{ required: true }]}>
-            <Input />
+            <Input placeholder="Last name" />
           </Form.Item>
 
           <Form.Item name="preferredName" label="Preferred Name" initialValue="">
-            <Input />
+            <Input placeholder="Preferred name" />
           </Form.Item>
         </div>
 
         <div css={formItemRow}>
           <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input />
+            <Input placeholder="Job title" />
           </Form.Item>
 
           <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]} validateDebounce={400}>
-            <Input disabled={isEdit} />
+            <Input placeholder="some@example.com" disabled={isEdit} />
           </Form.Item>
         </div>
 
         <Form.Item name="projects" label="Projects">
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             placeholder="Select projects"
             loading={projects.isLoading}
             disabled={projects.isLoading}
@@ -180,7 +178,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="expertise" label="Expertise" rules={[{ required: true }]} initialValue={[]}>
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             loading={expertise.isLoading}
             disabled={expertise.isLoading}
             placeholder="Select expertise"
@@ -190,7 +188,7 @@ const EmployeeDetailModal = ({
 
         <Form.Item name="personSkills" label="Skills">
           <Select
-            {...selectOptions}
+            {...DEFAULT_SELECT_OPTIONS}
             placeholder="Select skills"
             loading={skills.isLoading}
             disabled={skills.isLoading}

@@ -59,14 +59,6 @@ const PageLayout = ({ title, actions, children, style }: TPageLayout) => {
 
         <div css={{ display: 'flex', gap: 40 }}>
           <div css={{ display: 'flex', alignItems: 'center' }}>{actions}</div>
-          <Dropdown menu={{ items: avatarMenuItems }} trigger={['hover']} css={{ backgroundColor: 'transparent' }}>
-            <button css={dropDownBtnStyle}>
-              <Avatar firstName="Joe" lastName="Green" />
-              <CaretDownOutlined
-                css={{ fontSize: 12, position: 'absolute', top: 20, right: 0, transition: '0.2s 0.15s ease-out' }}
-              />
-            </button>
-          </Dropdown>
         </div>
       </section>
 

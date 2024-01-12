@@ -27,7 +27,7 @@ const columns: ColumnsType<TPersonData> = [
   {
     title: 'Expertise',
     width: 220,
-    render: ({ expertise }: TPersonData) => <>{expertise.map((item: any) => item.name).join(', ')}</>,
+    render: ({ expertise }: TPersonData) => <>{expertise.map((item) => item.name).join(', ')}</>,
   },
   {
     title: 'Projects',
