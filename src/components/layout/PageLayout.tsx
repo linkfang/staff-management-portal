@@ -57,9 +57,7 @@ const PageLayout = ({ title, actions, children, style }: TPageLayout) => {
       <section css={mainStyle}>
         <h1 css={{ fontSize: 36 }}>{title}</h1>
 
-        <div css={{ display: 'flex', gap: 40 }}>
-          <div css={{ display: 'flex', alignItems: 'center' }}>{actions}</div>
-        </div>
+        <div css={{ display: 'flex', gap: 40 }}>{actions}</div>
       </section>
 
       <section css={style}>{children}</section>
