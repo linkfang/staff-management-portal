@@ -2,9 +2,14 @@ import { App, Button, Form, Input, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { CloseOutlined } from '@ant-design/icons'
 import { COLORS, STYLES } from '@/constants/styles'
+import { TEditingData } from '@/type/general'
 
-type TEditingData = { id: number; name: string }
-type TEditExpertiseProps = { data: TEditingData[] | undefined; closeModal: () => void }
+type TEditExpertiseProps = {
+  data: TEditingData[] | undefined
+  closeModal: () => void
+  // eslint-disable-next-line no-unused-vars
+  callbackFunc: (data: TEditingData[]) => void
+}
 const chipStyle = {
   transition: 'all 0.3s ease-out',
   position: 'relative',
@@ -22,11 +27,12 @@ const overlapLineStyle = {
   backgroundColor: '#4f5456',
 } as const
 
-const EditExpertise = ({ closeModal, data }: TEditExpertiseProps) => {
+const EditExpertise = ({ closeModal, callbackFunc, data }: TEditExpertiseProps) => {
   const [editingData, setEditingData] = useState<TEditingData[]>()
 
   const { notification } = App.useApp()
   const [form] = Form.useForm()
+  const { setFieldValue } = form
 
   useEffect(() => {
     if (data) setEditingData(data)
@@ -57,10 +63,10 @@ const EditExpertise = ({ closeModal, data }: TEditExpertiseProps) => {
               return [...pre, { id: -1, name: inputValue }]
             })
 
-            form.setFieldValue('expertise', '')
+            setFieldValue('expertise', '')
           }}
         >
-          <Form.Item name="expertise">
+          <Form.Item name="expertise" initialValue="">
             <Input aria-label="expertise" placeholder="Expertise" />
           </Form.Item>
         </Form>
@@ -73,7 +79,7 @@ const EditExpertise = ({ closeModal, data }: TEditExpertiseProps) => {
 
           return (
             <div
-              key={item.id}
+              key={item.name}
               css={[chipStyle, { backgroundColor: isDeleted ? 'hsl(0, 85%, 94%)' : COLORS.lightGrey }]}
             >
               <p>{item.name}</p>
@@ -111,7 +117,7 @@ const EditExpertise = ({ closeModal, data }: TEditExpertiseProps) => {
           .filter((item) => !data?.find((ele) => ele.id === item.id))
           .map((item) => {
             return (
-              <div key={item.id} css={[chipStyle, { backgroundColor: 'hsl(112, 50%, 90%)' }]}>
+              <div key={item.name} css={[chipStyle, { backgroundColor: 'hsl(112, 50%, 90%)' }]}>
                 <p>{item.name}</p>
 
                 <button
@@ -140,12 +146,7 @@ const EditExpertise = ({ closeModal, data }: TEditExpertiseProps) => {
       <div css={{ display: 'flex', justifyContent: 'flex-end', gap: 20 }}>
         <Button onClick={() => closeModal()}>Cancel</Button>
 
-        <Button
-          type="primary"
-          onClick={() => {
-            closeModal()
-          }}
-        >
+        <Button type="primary" onClick={() => callbackFunc(editingData)}>
           Save
         </Button>
       </div>
