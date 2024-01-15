@@ -1,17 +1,32 @@
-import { trpc } from '@/utils/trpc'
 import { App, Button, Form, Input, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { CloseOutlined } from '@ant-design/icons'
 import { COLORS, STYLES } from '@/constants/styles'
 
 type TEditingData = { id: number; name: string }
+type TEditExpertiseProps = { data: TEditingData[] | undefined; closeModal: () => void }
+const chipStyle = {
+  transition: 'all 0.3s ease-out',
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  padding: '8px 16px',
+  borderRadius: 6,
+} as const
 
-const EditExpertise = () => {
+const overlapLineStyle = {
+  transition: 'all 0.3s ease-out',
+  position: 'absolute',
+  left: 14,
+  height: 1,
+  backgroundColor: '#4f5456',
+} as const
+
+const EditExpertise = ({ closeModal, data }: TEditExpertiseProps) => {
   const [editingData, setEditingData] = useState<TEditingData[]>()
 
   const { notification } = App.useApp()
   const [form] = Form.useForm()
-  const { data } = trpc.findManyExpertise.useQuery()
 
   useEffect(() => {
     if (data) setEditingData(data)
@@ -20,14 +35,17 @@ const EditExpertise = () => {
   if (!editingData || !data) return <Spin />
 
   return (
-    <div>
-      <div css={{ display: 'flex', gap: 20 }}>
+    <>
+      <div css={{ display: 'flex', gap: 20, marginTop: 15 }}>
         <Form
           form={form}
           onFinish={() => {
             const inputValue = form.getFieldValue('expertise')
 
-            if (!inputValue) return
+            if (!inputValue) {
+              notification.error({ message: 'Can not add an empty expertise' })
+              return
+            }
 
             if ([...data, ...editingData].find((item) => item.name.toLowerCase() === inputValue.toLowerCase())) {
               notification.error({ message: `${inputValue} already exists` })
@@ -42,43 +60,24 @@ const EditExpertise = () => {
             form.setFieldValue('expertise', '')
           }}
         >
-          <Form.Item name="expertise" rules={[{ required: true }]}>
+          <Form.Item name="expertise">
             <Input aria-label="expertise" placeholder="Expertise" />
           </Form.Item>
         </Form>
         <Button onClick={() => form.submit()}>Add</Button>
       </div>
 
-      <div css={{ marginTop: 10, marginBottom: 20, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+      <div css={{ marginBottom: 20, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
         {data?.map((item) => {
           const isDeleted = !editingData.find((ele) => ele.id === item.id)
 
           return (
             <div
               key={item.id}
-              css={[
-                {
-                  transition: 'all 0.3s ease-out',
-                  position: 'relative',
-                  display: 'flex',
-                  backgroundColor: isDeleted ? 'hsl(0, 85%, 94%)' : COLORS.lightGrey,
-                  alignItems: 'center',
-                  padding: '8px 16px',
-                  borderRadius: 6,
-                },
-              ]}
+              css={[chipStyle, { backgroundColor: isDeleted ? 'hsl(0, 85%, 94%)' : COLORS.lightGrey }]}
             >
               <p>{item.name}</p>
-              <div
-                css={{
-                  transition: 'all 0.3s ease-out',
-                  position: 'absolute',
-                  left: 14,
-                  right: isDeleted ? 37 : '100%',
-                  height: 1,
-                  backgroundColor: '#4f5456',
-                }}
-              ></div>
+              <div css={[overlapLineStyle, { right: isDeleted ? 37 : '100%' }]}></div>
               <button
                 css={[
                   STYLES.buttonWithoutStyle,
@@ -112,20 +111,7 @@ const EditExpertise = () => {
           .filter((item) => !data?.find((ele) => ele.id === item.id))
           .map((item) => {
             return (
-              <div
-                key={item.id}
-                css={[
-                  {
-                    transition: 'all 0.3s ease-out',
-                    position: 'relative',
-                    display: 'flex',
-                    backgroundColor: 'hsl(112, 50%, 90%)',
-                    alignItems: 'center',
-                    padding: '8px 16px',
-                    borderRadius: 6,
-                  },
-                ]}
-              >
+              <div key={item.id} css={[chipStyle, { backgroundColor: 'hsl(112, 50%, 90%)' }]}>
                 <p>{item.name}</p>
 
                 <button
@@ -150,7 +136,20 @@ const EditExpertise = () => {
             )
           })}
       </div>
-    </div>
+
+      <div css={{ display: 'flex', justifyContent: 'flex-end', gap: 20 }}>
+        <Button onClick={() => closeModal()}>Cancel</Button>
+
+        <Button
+          type="primary"
+          onClick={() => {
+            closeModal()
+          }}
+        >
+          Save
+        </Button>
+      </div>
+    </>
   )
 }
 

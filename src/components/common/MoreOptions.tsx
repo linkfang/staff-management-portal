@@ -1,41 +1,41 @@
 import { MoreOutlined } from '@ant-design/icons'
-import { App, Dropdown, ModalFuncProps, type MenuProps } from 'antd'
+import { Dropdown, type MenuProps, Modal } from 'antd'
 import EditExpertise from '../expertise/EditExpertise'
-
-const commonModalProps: ModalFuncProps = { okText: 'Save', cancelText: 'Cancel', icon: <></>, centered: true }
+import { useState } from 'react'
+import { trpc } from '@/utils/trpc'
 
 const MoreOptions = () => {
-  const { modal } = App.useApp()
+  const [shouldOpen, setShouldOpen] = useState(false)
+
+  const { data: expertiseData } = trpc.findManyExpertise.useQuery(undefined, {
+    select: (data) => data.map(({ id, name }) => ({ id, name })),
+  })
 
   const moreItems: MenuProps['items'] = [
     {
       label: ' Edit Expertise',
       key: '0',
       onClick: () => {
-        modal.confirm({
-          ...commonModalProps,
-          title: 'Edit Expertise',
-          content: <EditExpertise />,
-        })
+        setShouldOpen(true)
       },
     },
     {
       label: ' Edit Skills',
       key: '2',
-      onClick: () => {
-        modal.confirm({
-          ...commonModalProps,
-          title: 'Edit Skills',
-          content: <></>,
-        })
-      },
+      onClick: () => {},
     },
   ]
 
   return (
-    <Dropdown trigger={['click']} menu={{ items: moreItems }}>
-      <MoreOutlined />
-    </Dropdown>
+    <>
+      <Dropdown trigger={['click']} menu={{ items: moreItems }}>
+        <MoreOutlined />
+      </Dropdown>
+
+      <Modal centered footer={null} open={shouldOpen} onCancel={() => setShouldOpen(false)} css={{ minWidth: 600 }}>
+        <EditExpertise data={expertiseData} closeModal={() => setShouldOpen(false)} />
+      </Modal>
+    </>
   )
 }
 
