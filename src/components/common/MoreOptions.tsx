@@ -9,9 +9,14 @@ const MoreOptions = () => {
   const { notification } = App.useApp()
 
   const [shouldOpen, setShouldOpen] = useState(false)
+  const [type, setType] = useState<'Expertise' | 'Skills'>('Expertise')
 
   const { data: expertiseData, refetch: refetchExpertise } = trpc.findManyExpertise.useQuery(undefined, {
     select: (data) => data.map(({ id, name }) => ({ id, name })),
+  })
+
+  const { data: skillsData, refetch: refetchSkills } = trpc.findManySkill.useQuery(undefined, {
+    select: (data) => data.map(({ name, id }) => ({ id, name })),
   })
 
   const { mutate: mutateExpertise } = trpc.editManyExpertise.useMutation({
@@ -40,13 +45,17 @@ const MoreOptions = () => {
       label: ' Edit Expertise',
       key: '0',
       onClick: () => {
+        setType('Expertise')
         setShouldOpen(true)
       },
     },
     {
       label: ' Edit Skills',
       key: '2',
-      onClick: () => {},
+      onClick: () => {
+        setType('Skills')
+        setShouldOpen(true)
+      },
     },
   ]
 
@@ -59,15 +68,16 @@ const MoreOptions = () => {
       <Modal
         destroyOnClose
         centered
+        title={`Edit ${type}`}
         footer={null}
         open={shouldOpen}
         onCancel={() => setShouldOpen(false)}
         css={{ minWidth: 600 }}
       >
         <EditExpertise
-          data={expertiseData}
+          data={type === 'Expertise' ? expertiseData : skillsData}
           closeModal={() => setShouldOpen(false)}
-          callbackFunc={EditExpertiseCallback}
+          callbackFunc={type === 'Expertise' ? EditExpertiseCallback : () => {}}
         />
       </Modal>
     </>

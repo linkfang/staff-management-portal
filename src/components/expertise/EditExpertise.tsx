@@ -42,7 +42,7 @@ const EditExpertise = ({ closeModal, callbackFunc, data }: TEditExpertiseProps) 
 
   return (
     <>
-      <div css={{ display: 'flex', gap: 20, marginTop: 15 }}>
+      <div css={{ display: 'flex', gap: 20, marginTop: 25 }}>
         <Form
           form={form}
           onFinish={() => {
@@ -73,7 +73,7 @@ const EditExpertise = ({ closeModal, callbackFunc, data }: TEditExpertiseProps) 
         <Button onClick={() => form.submit()}>Add</Button>
       </div>
 
-      <div css={{ marginBottom: 20, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+      <div css={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
         {data?.map((item) => {
           const isDeleted = !editingData.find((ele) => ele.id === item.id)
 
@@ -143,7 +143,7 @@ const EditExpertise = ({ closeModal, callbackFunc, data }: TEditExpertiseProps) 
           })}
       </div>
 
-      <div css={{ display: 'flex', justifyContent: 'flex-end', gap: 20 }}>
+      <div css={{ marginTop: 30, display: 'flex', justifyContent: 'flex-end', gap: 20 }}>
         <Button onClick={() => closeModal()}>Cancel</Button>
 
         <Button type="primary" onClick={() => callbackFunc(editingData)}>
