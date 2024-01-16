@@ -7,7 +7,7 @@ import { displayName, isOnGoing } from '@/utils/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { App, Button, Table } from 'antd'
+import { App, Button, Popconfirm, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -74,10 +74,17 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
   }))
 
 // eslint-disable-next-line no-unused-vars
-const renderEditButtonColumn = (callback: (person: TPersonData) => void) => ({
+const renderEditButtonColumn = (editCallback: (person: TPersonData) => void, deleteCallback: (id: number) => void) => ({
   title: 'Action',
-  width: 80,
-  render: (person: TPersonData) => <Button onClick={() => callback(person)}>Edit</Button>,
+  width: 160,
+  render: (person: TPersonData) => (
+    <div css={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
+      <Button onClick={() => editCallback(person)}>Edit</Button>
+      <Popconfirm title={`Delete employee - ${displayName(person)}?`} onConfirm={() => deleteCallback(person.id)}>
+        <Button>Delete</Button>
+      </Popconfirm>
+    </div>
+  ),
 })
 
 /* Component */
@@ -115,6 +122,8 @@ const EmployeesPage = () => {
     setShouldOpen(true)
   }
 
+  const deleteCallback = (id: number) => {}
+
   return (
     <PageLayout
       title="Employees"
@@ -135,7 +144,7 @@ const EmployeesPage = () => {
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[
           ...columns,
-          renderEditButtonColumn(editBtnCallback),
+          renderEditButtonColumn(editBtnCallback, deleteCallback),
           ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
         ]}
         dataSource={persons?.data}
