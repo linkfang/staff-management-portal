@@ -18,5 +18,9 @@ ul.ant-pagination > li.ant-pagination-total-text {
 }
 
 .ant-progress-bg {
-  transition: all 1s cubic-bezier(0.165, 0.84, 0.40, 0.85) !important;
+  transition: all 1s cubic-bezier(0.165, 0.84, 0.4, 0.85) !important;
+}
+
+.ant-modal-confirm-paragraph {
+  max-width: 100% !important;
 }

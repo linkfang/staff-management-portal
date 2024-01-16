@@ -9,6 +9,7 @@ export const COLORS = {
   grey: '#D9D9D9',
   green: '#149200',
   orange: '#D3A128',
+  errorRed: '#cd201f',
   textBlack: '#151515',
   bgColor: '#F7FBFC',
 } as const
@@ -39,4 +40,5 @@ export const STYLES = {
     padding: '15px 20px',
     borderRadius: SIZES.borderRadius,
   }),
+  buttonWithoutStyle: { backgroundColor: 'transparent', border: 'none', cursor: 'pointer', padding: 0 },
 } as const

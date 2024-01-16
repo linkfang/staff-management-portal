@@ -8,3 +8,4 @@ export type TPersonData = RouterOutput['findManyPerson'][0]
 export type RouterInput = inferRouterInputs<AppRouter>
 
 export type TProjectData = RouterOutput['findManyProject'][0]
+export type TEditingData = { id: number; name: string }

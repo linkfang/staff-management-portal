@@ -1,4 +1,4 @@
-import { COLORS } from '@/constants/styles'
+import { COLORS, STYLES } from '@/constants/styles'
 import { ReactNode } from 'react'
 
 type TActionButtonProps = { icon: ReactNode; action: () => void }
@@ -6,10 +6,7 @@ const ActionButton = ({ icon, action }: TActionButtonProps) => (
   <button
     onClick={action}
     css={{
-      backgroundColor: 'transparent',
-      border: 'none',
-      cursor: 'pointer',
-      padding: 0,
+      ...STYLES.buttonWithoutStyle,
       '& span': {
         fontSize: 24,
         color: COLORS.textBlack,

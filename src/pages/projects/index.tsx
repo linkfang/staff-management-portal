@@ -8,9 +8,10 @@ import { trpc } from '@/utils/trpc'
 import { App, Button, Popconfirm, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { AppstoreAddOutlined } from '@ant-design/icons'
-import { RouterOutput, TProjectData } from '@/type/general'
+import type { RouterOutput, TProjectData } from '@/type/general'
 import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 import { useState } from 'react'
+import MoreOptions from '@/components/common/MoreOptions'
 
 type TProjectResDeleted = RouterOutput['deleteAProject']
 
@@ -134,6 +135,7 @@ const ProjectsPage = () => {
               setShouldOpen(true)
             }}
           />
+          <ActionButton icon={<MoreOptions />} action={() => {}} />
         </>
       }
     >
