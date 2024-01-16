@@ -5,6 +5,16 @@ import { useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { TEditingData } from '@/type/general'
 
+const findToBeDeleted = (preData: (Record<string, string | number> & { id: number })[], newData: TEditingData[]) => {
+  const toBeDeleted = []
+  for (let i = 0; i < preData.length; i++) {
+    const element = preData[i]
+    if (!newData.find((item) => item.id === element.id)) toBeDeleted.push(element.id)
+  }
+
+  return toBeDeleted
+}
+
 const MoreOptions = () => {
   const { notification } = App.useApp()
 
@@ -36,12 +46,7 @@ const MoreOptions = () => {
   const editExpertiseCallback = (editingData: TEditingData[]) => {
     if (!expertiseData) return
 
-    const toBeDeleted = []
-    for (let i = 0; i < expertiseData.length; i++) {
-      const element = expertiseData[i]
-      if (!editingData.find((item) => item.id === element.id)) toBeDeleted.push(element.id)
-    }
-
+    const toBeDeleted = findToBeDeleted(expertiseData, editingData)
     const toBeAdded = editingData.filter((item) => item.id < 0).map(({ name }) => ({ name }))
 
     mutateExpertise({ toBeDeleted, toBeAdded })
@@ -50,12 +55,7 @@ const MoreOptions = () => {
   const editSkillCallback = (editingData: TEditingData[]) => {
     if (!skillsData) return
 
-    const toBeDeleted = []
-    for (let i = 0; i < skillsData.length; i++) {
-      const element = skillsData[i]
-      if (!editingData.find((item) => item.id === element.id)) toBeDeleted.push(element.id)
-    }
-
+    const toBeDeleted = findToBeDeleted(skillsData, editingData)
     const toBeAdded = editingData.filter((item) => item.id < 0).map(({ name }) => ({ name, description: '' }))
 
     mutateSkills({ toBeDeleted, toBeAdded })
