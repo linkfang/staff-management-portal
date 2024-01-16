@@ -26,7 +26,14 @@ const MoreOptions = () => {
     },
   })
 
-  const EditExpertiseCallback = (editingData: TEditingData[]) => {
+  const { mutate: mutateSkills } = trpc.editManySkills.useMutation({
+    onSuccess: () => {
+      refetchSkills()
+      notification.success({ message: 'Updated skills' })
+    },
+  })
+
+  const editExpertiseCallback = (editingData: TEditingData[]) => {
     if (!expertiseData) return
 
     const toBeDeleted = []
@@ -38,6 +45,20 @@ const MoreOptions = () => {
     const toBeAdded = editingData.filter((item) => item.id < 0).map(({ name }) => ({ name }))
 
     mutateExpertise({ toBeDeleted, toBeAdded })
+  }
+
+  const editSkillCallback = (editingData: TEditingData[]) => {
+    if (!skillsData) return
+
+    const toBeDeleted = []
+    for (let i = 0; i < skillsData.length; i++) {
+      const element = skillsData[i]
+      if (!editingData.find((item) => item.id === element.id)) toBeDeleted.push(element.id)
+    }
+
+    const toBeAdded = editingData.filter((item) => item.id < 0).map(({ name }) => ({ name, description: '' }))
+
+    mutateSkills({ toBeDeleted, toBeAdded })
   }
 
   const moreItems: MenuProps['items'] = [
@@ -77,7 +98,7 @@ const MoreOptions = () => {
         <EditExpertise
           data={type === 'Expertise' ? expertiseData : skillsData}
           closeModal={() => setShouldOpen(false)}
-          callbackFunc={type === 'Expertise' ? EditExpertiseCallback : () => {}}
+          callbackFunc={type === 'Expertise' ? editExpertiseCallback : editSkillCallback}
         />
       </Modal>
     </>
