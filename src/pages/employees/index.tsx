@@ -96,23 +96,22 @@ const EmployeesPage = () => {
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
 
-  const onMutationSuccess = () => {
+  const onMutationSuccess = (message: string) => {
     setShouldOpen(false)
     persons.refetch()
+    notification.success({ message })
   }
 
   const { mutate: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
-    onSuccess: (_, person) => {
-      onMutationSuccess()
-      notification.success({ message: `Updated ${displayName(person)}` })
-    },
+    onSuccess: (_, person) => onMutationSuccess(`Updated ${displayName(person)}`),
   })
 
   const { mutate: createPerson } = trpc.createAPerson.useMutation({
-    onSuccess: (_, person) => {
-      onMutationSuccess()
-      notification.success({ message: `Add ${displayName(person)}` })
-    },
+    onSuccess: (_, person) => onMutationSuccess(`Add ${displayName(person)}`),
+  })
+
+  const { mutateAsync: deletePerson } = trpc.deleteAPerson.useMutation({
+    onSuccess: (response) => onMutationSuccess(`Deleted ${displayName(response[1])}`),
   })
 
   const editBtnCallback = (personData: TPersonData) => {
@@ -122,7 +121,7 @@ const EmployeesPage = () => {
     setShouldOpen(true)
   }
 
-  const deleteCallback = (id: number) => {}
+  const deleteCallback = (id: number) => deletePerson(id)
 
   return (
     <PageLayout
