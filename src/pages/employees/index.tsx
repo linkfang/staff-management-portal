@@ -14,6 +14,7 @@ import { useState } from 'react'
 
 import { UserAddOutlined } from '@ant-design/icons'
 import ActionButton from '@/components/common/ActionButton'
+import MoreOptions from '@/components/common/MoreOptions'
 
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
@@ -126,6 +127,7 @@ const EmployeesPage = () => {
               setShouldOpen(true)
             }}
           />
+          <ActionButton icon={<MoreOptions />} />
         </>
       }
     >
