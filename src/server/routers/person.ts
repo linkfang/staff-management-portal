@@ -112,4 +112,11 @@ export const personRouter = router({
         return `Created ${preferredName || firstName} ${lastName}`
       }
     ),
+  deleteAPerson: procedure.input(z.number()).mutation(async ({ ctx: { prisma }, input }) => {
+    const response = await prisma.$transaction([
+      prisma.personSkill.deleteMany({ where: { personId: { equals: input } } }),
+      prisma.person.delete({ where: { id: input } }),
+    ])
+    return response
+  }),
 })

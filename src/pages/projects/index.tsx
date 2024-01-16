@@ -135,7 +135,7 @@ const ProjectsPage = () => {
               setShouldOpen(true)
             }}
           />
-          <ActionButton icon={<MoreOptions />} action={() => {}} />
+          <ActionButton icon={<MoreOptions />} />
         </>
       }
     >

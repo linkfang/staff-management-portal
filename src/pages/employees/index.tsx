@@ -7,13 +7,14 @@ import { displayName, isOnGoing } from '@/utils/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 
-import { App, Button, Table } from 'antd'
+import { App, Button, Popconfirm, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
 
 import { UserAddOutlined } from '@ant-design/icons'
 import ActionButton from '@/components/common/ActionButton'
+import MoreOptions from '@/components/common/MoreOptions'
 
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
@@ -73,10 +74,17 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
   }))
 
 // eslint-disable-next-line no-unused-vars
-const renderEditButtonColumn = (callback: (person: TPersonData) => void) => ({
+const renderEditButtonColumn = (editCallback: (person: TPersonData) => void, deleteCallback: (id: number) => void) => ({
   title: 'Action',
-  width: 80,
-  render: (person: TPersonData) => <Button onClick={() => callback(person)}>Edit</Button>,
+  width: 160,
+  render: (person: TPersonData) => (
+    <div css={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
+      <Button onClick={() => editCallback(person)}>Edit</Button>
+      <Popconfirm title={`Delete employee - ${displayName(person)}?`} onConfirm={() => deleteCallback(person.id)}>
+        <Button>Delete</Button>
+      </Popconfirm>
+    </div>
+  ),
 })
 
 /* Component */
@@ -88,23 +96,22 @@ const EmployeesPage = () => {
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
 
-  const onMutationSuccess = () => {
+  const onMutationSuccess = (message: string) => {
     setShouldOpen(false)
     persons.refetch()
+    notification.success({ message })
   }
 
   const { mutate: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
-    onSuccess: (_, person) => {
-      onMutationSuccess()
-      notification.success({ message: `Updated ${displayName(person)}` })
-    },
+    onSuccess: (_, person) => onMutationSuccess(`Updated ${displayName(person)}`),
   })
 
   const { mutate: createPerson } = trpc.createAPerson.useMutation({
-    onSuccess: (_, person) => {
-      onMutationSuccess()
-      notification.success({ message: `Add ${displayName(person)}` })
-    },
+    onSuccess: (_, person) => onMutationSuccess(`Add ${displayName(person)}`),
+  })
+
+  const { mutateAsync: deletePerson } = trpc.deleteAPerson.useMutation({
+    onSuccess: (response) => onMutationSuccess(`Deleted ${displayName(response[1])}`),
   })
 
   const editBtnCallback = (personData: TPersonData) => {
@@ -113,6 +120,8 @@ const EmployeesPage = () => {
     setSelectedPerson(personData)
     setShouldOpen(true)
   }
+
+  const deleteCallback = (id: number) => deletePerson(id)
 
   return (
     <PageLayout
@@ -126,6 +135,7 @@ const EmployeesPage = () => {
               setShouldOpen(true)
             }}
           />
+          <ActionButton icon={<MoreOptions />} />
         </>
       }
     >
@@ -133,7 +143,7 @@ const EmployeesPage = () => {
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[
           ...columns,
-          renderEditButtonColumn(editBtnCallback),
+          renderEditButtonColumn(editBtnCallback, deleteCallback),
           ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
         ]}
         dataSource={persons?.data}
