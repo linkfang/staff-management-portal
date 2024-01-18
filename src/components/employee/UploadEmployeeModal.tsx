@@ -53,20 +53,22 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
     name: 'file',
     maxCount: 1,
     accept: '.csv',
+    style: { marginTop: 20 },
     onChange: (info) => {
       if (!existingData) return
 
       const { status, error, originFileObj } = info.file
 
-      console.log(error)
+      if (error) {
+        notification.error({ message: `${error}` })
+        return
+      }
 
       if (status === 'done' && originFileObj)
         parse(originFileObj, {
           header: true,
           skipEmptyLines: true,
           complete: ({ data: uploadData }: { data: TUploadPersonData[] }) => {
-            console.log(uploadData)
-
             // check if all required column/headers are included
             const missingColumns = requiredColumns.filter((field) => !uploadData[0].hasOwnProperty(field))
             const missingColumnsLength = missingColumns.length
@@ -102,8 +104,8 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
               if (isDuplicated) invalidItems.push({ ...item, errorType: 'Duplicated Email' })
             })
 
-            console.log(invalidItems)
             if (invalidItems.length > 0) {
+              setIsOkToUpload(false)
               setUploadingItems(undefined)
               setInvalidItem(invalidItems)
               return
@@ -122,11 +124,16 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
 
   return (
     <Modal
+      destroyOnClose
       width={800}
       centered
       title="Upload to Add Employees"
       open={openUpload}
-      onCancel={() => setOpenUpload(false)}
+      onCancel={() => {
+        setUploadingItems(undefined)
+        setInvalidItem(undefined)
+        setOpenUpload(false)
+      }}
       okButtonProps={{ disabled: !isOKToUpload }}
     >
       {isFetching ? (
@@ -140,13 +147,13 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
         </Upload.Dragger>
       )}
 
-      <div css={{ marginTop: 20 }}>
+      <div css={{ marginTop: 25 }}>
         {invalidItems && (
           <>
-            <div css={{ display: 'flex', gap: 5 }}>
+            <div css={{ display: 'flex', gap: 5, marginBottom: 10 }}>
               <ExclamationCircleOutlined css={{ color: COLORS.errorRed }} />
               <p css={{ color: COLORS.errorRed }}>
-                Please fix the error item{invalidItems.length > 1 ? 's' : ''} below to be able to upload.
+                Please fix the error item{invalidItems.length > 1 ? 's' : ''} below to proceed uploading.
               </p>
             </div>
             <Table
