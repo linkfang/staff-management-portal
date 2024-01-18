@@ -17,7 +17,7 @@ type TUploadPersonData = {
   title: string
   errorType?: string
 }
-const requiredColumns = ['firstName', 'lastName', 'email', 'title'] as const
+const requiredColumns = ['firstName', 'lastName', 'email', 'title', 'preferredName'] as const
 
 const columns: ColumnsType<TUploadPersonData> = [
   {
@@ -44,10 +44,18 @@ const columns: ColumnsType<TUploadPersonData> = [
 
 const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModalProps) => {
   const { notification } = App.useApp()
-  const { data: existingData, isFetching } = trpc.findManyPerson.useQuery()
   const [invalidItems, setInvalidItem] = useState<TUploadPersonData[]>()
   const [uploadingItems, setUploadingItems] = useState<TUploadPersonData[]>()
-  const [isOKToUpload, setIsOkToUpload] = useState(false)
+
+  const { data: existingData, isFetching, refetch: refetchPersons } = trpc.findManyPerson.useQuery()
+  const { mutate, isLoading: isMutating } = trpc.createManyPersons.useMutation({
+    onSuccess: ({ count }) => {
+      notification.success({ message: `Added ${count} employee${count > 1 ? 's' : ''}.` })
+      refetchPersons()
+      setOpenUpload(false)
+      setUploadingItems(undefined)
+    },
+  })
 
   const uploadProps: UploadProps = {
     name: 'file',
@@ -75,6 +83,7 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
             const moreThanOneMissing = missingColumnsLength > 1
 
             if (missingColumnsLength > 0) {
+              setUploadingItems(undefined)
               notification.error({
                 message: `${missingColumns.join(', ')} column${moreThanOneMissing ? 's are' : ' is'} missing`,
               })
@@ -105,7 +114,6 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
             })
 
             if (invalidItems.length > 0) {
-              setIsOkToUpload(false)
               setUploadingItems(undefined)
               setInvalidItem(invalidItems)
               return
@@ -113,7 +121,6 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
 
             setInvalidItem(undefined)
             setUploadingItems(uploadData)
-            setIsOkToUpload(true)
           },
         })
     },
@@ -125,8 +132,11 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
   return (
     <Modal
       destroyOnClose
-      width={800}
+      maskClosable={!isMutating}
+      closable={!isMutating}
+      cancelButtonProps={{ disabled: isMutating }}
       centered
+      width={800}
       title="Upload to Add Employees"
       open={openUpload}
       onCancel={() => {
@@ -134,15 +144,23 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
         setInvalidItem(undefined)
         setOpenUpload(false)
       }}
-      okButtonProps={{ disabled: !isOKToUpload }}
+      okButtonProps={{ disabled: !uploadingItems, loading: isMutating }}
+      okText="Upload"
+      onOk={() => {
+        if (uploadingItems) mutate(uploadingItems)
+      }}
     >
       {isFetching ? (
-        <Spin css={{ width: '100%', height: 116 }} />
+        <Spin css={{ width: '100%', height: 116, display: 'flex', justifyContent: 'center', alignItems: 'center' }} />
       ) : (
         <Upload.Dragger {...uploadProps}>
           <FileAddOutlined css={{ fontSize: 30, color: COLORS.primary, margin: '10px 0 15px' }} />
-          <p className="ant-upload-hint" css={{ marginBottom: 5 }}>
-            Click or drag file to this area to upload
+          <p className="ant-upload-text" css={{ marginBottom: 5 }}>
+            Click or drag .csv file to this area to upload
+          </p>
+          <p className="ant-upload-hint" css={{ margin: 5 }}>
+            Please include the following 5 headers in the .csv file: <br />
+            firstName, lastName, preferredName, email and title
           </p>
         </Upload.Dragger>
       )}

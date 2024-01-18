@@ -119,4 +119,23 @@ export const personRouter = router({
     ])
     return response
   }),
+  createManyPersons: procedure
+    .input(
+      z.array(
+        z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          email: z.string(),
+          preferredName: z.string(),
+          title: z.string(),
+        })
+      )
+    )
+    .mutation(async ({ ctx: { prisma }, input }) => {
+      const newPersons = await prisma.person.createMany({
+        data: input,
+      })
+
+      return newPersons
+    }),
 })
