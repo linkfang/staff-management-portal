@@ -1,11 +1,12 @@
 import { App, Form, Input, Modal, Select } from 'antd'
 import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { RouterInput, TPersonData } from '@/type/general'
 import { displayName } from '@/utils/general'
 import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
+import { MODAL_PROPS } from '@/constants/componentProps'
 
 /* Types */
 type TPersonSkills = TPersonData['personSkills'][0]
@@ -67,40 +68,46 @@ const EmployeeDetailModal = ({
   const employees = trpc.findManyPerson.useQuery()
 
   const skillOptions = skills.data?.map(({ name, id }) => ({ label: name, value: id })) ?? []
+  const resetFormValues = useCallback(() => {
+    if (!isEdit) return
+
+    setFieldsValue({
+      ...selectedPerson,
+      projects: renderSelectedProjects(selectedPerson),
+      expertise: selectedPerson.expertise.map((item) => item.id),
+      personSkills: selectedPerson.personSkills.map((personSkill) => personSkill.skillId),
+    })
+    setPersonSkills(selectedPerson.personSkills)
+  }, [isEdit, selectedPerson, setFieldsValue])
 
   useEffect(() => {
     if (isEdit) {
-      setFieldsValue({
-        ...selectedPerson,
-        projects: renderSelectedProjects(selectedPerson),
-        expertise: selectedPerson.expertise.map((item) => item.id),
-        personSkills: selectedPerson.personSkills.map((personSkill) => personSkill.skillId),
-      })
-      setPersonSkills(selectedPerson.personSkills)
+      resetFormValues()
       return
     }
 
     resetFields()
     setPersonSkills([])
-  }, [selectedPerson, isEdit, setFieldsValue, resetFields])
+  }, [isEdit, resetFields, resetFormValues])
 
   return (
     <Modal
+      {...MODAL_PROPS(isLoading)}
       title={isEdit ? `Edit ${displayName(selectedPerson)}` : 'Add an Employee'}
       open={shouldOpen}
-      centered={true}
+      onOk={form.submit}
+      okText={isEdit ? 'Save' : 'Add'}
       onCancel={() => {
         setShouldOpen(false)
-        if (!isEdit) {
-          resetFields()
-          setPersonSkills([])
+
+        if (isEdit) {
+          resetFormValues()
+          return
         }
+
+        resetFields()
+        setPersonSkills([])
       }}
-      onOk={form.submit}
-      confirmLoading={isLoading}
-      cancelButtonProps={{ disabled: isLoading }}
-      closable={!isLoading}
-      okText={isEdit ? 'Save' : 'Add'}
     >
       <Form
         form={form}

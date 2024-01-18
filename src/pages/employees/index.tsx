@@ -1,4 +1,4 @@
-import EmployeeDetailModal from '@/components/employeeDetail/EmployeeDetailModal'
+import EmployeeDetailModal from '@/components/employee/EmployeeDetailModal'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
@@ -12,9 +12,10 @@ import { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useState } from 'react'
 
-import { UserAddOutlined } from '@ant-design/icons'
+import { UserAddOutlined, CloudUploadOutlined } from '@ant-design/icons'
 import ActionButton from '@/components/common/ActionButton'
 import MoreOptions from '@/components/common/MoreOptions'
+import UploadEmployeeModal from '@/components/employee/UploadEmployeeModal'
 
 /* Constants */
 const columns: ColumnsType<TPersonData> = [
@@ -90,6 +91,7 @@ const renderEditButtonColumn = (editCallback: (person: TPersonData) => void, del
 /* Component */
 const EmployeesPage = () => {
   const [shouldOpen, setShouldOpen] = useState(false)
+  const [openUpload, setOpenUpload] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState<TPersonData>()
   const { notification } = App.useApp()
 
@@ -135,6 +137,7 @@ const EmployeesPage = () => {
               setShouldOpen(true)
             }}
           />
+          <ActionButton icon={<CloudUploadOutlined />} action={() => setOpenUpload(true)} />
           <ActionButton icon={<MoreOptions />} />
         </>
       }
@@ -164,6 +167,7 @@ const EmployeesPage = () => {
           {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
         />
       )}
+      <UploadEmployeeModal {...{ openUpload, setOpenUpload }} />
     </PageLayout>
   )
 }

@@ -5,6 +5,7 @@ import { displayName } from '@/utils/general'
 import dayjs, { Dayjs } from 'dayjs'
 import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
 import { RouterInput, TProjectData } from '@/type/general'
+import { MODAL_PROPS } from '@/constants/componentProps'
 
 /* Types */
 type TProjectDataCreate = RouterInput['createAProject']
@@ -69,20 +70,17 @@ const ProjectDetailModal = ({
 
   return (
     <Modal
+      {...MODAL_PROPS(isLoading)}
       title={isEdit ? `Edit ${selectedProject.name}` : 'Add a Project'}
       open={shouldOpen}
-      centered={true}
+      onOk={form.submit}
+      okText={isEdit ? 'Save' : 'Add'}
       onCancel={() => {
         setShouldOpen(false)
         if (!isEdit) {
           resetFields()
         }
       }}
-      onOk={form.submit}
-      confirmLoading={isLoading}
-      cancelButtonProps={{ disabled: isLoading }}
-      closable={!isLoading}
-      okText={isEdit ? 'Save' : 'Add'}
     >
       <Form
         form={form}
