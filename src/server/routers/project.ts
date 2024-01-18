@@ -4,7 +4,11 @@ import { procedure, router } from '../trpc'
 export const projectsRouter = router({
   findManyProject: procedure.query(async ({ ctx }) => {
     const findManyProject = await ctx.prisma.project.findMany({
-      include: { persons: {}, skills: {}, fields: {} },
+      include: {
+        persons: { orderBy: { firstName: 'asc' } },
+        skills: { orderBy: { name: 'asc' } },
+        fields: { orderBy: { name: 'asc' } },
+      },
       orderBy: { startDate: 'asc' },
     })
     return findManyProject
