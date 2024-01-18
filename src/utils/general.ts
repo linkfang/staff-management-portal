@@ -20,3 +20,8 @@ type TDisplayNameArgs = {
 }
 export const displayName = ({ firstName, preferredName, lastName, onlyFirstName }: TDisplayNameArgs) =>
   `${preferredName || firstName} ${onlyFirstName ? '' : lastName}`
+
+export const isValidEmail = (email: string): boolean =>
+  /^[-!#$%&'*+/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z{|}~])*@[a-zA-Z](-?[a-zA-Z0-9])*(\.[a-zA-Z](-?[a-zA-Z0-9])*)+$/.test(
+    email.toLowerCase()
+  )
