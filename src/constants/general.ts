@@ -1,4 +1,4 @@
-import { SelectProps } from 'antd'
+import { type SelectProps } from 'antd'
 
 export const DATE_FORMAT_STRINGS = {
   yearMonthDay: 'YYYY-MM-DD',

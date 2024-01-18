@@ -2,7 +2,7 @@ import { App, Button, Form, Input, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { CloseOutlined } from '@ant-design/icons'
 import { COLORS, STYLES } from '@/constants/styles'
-import { TEditingData } from '@/type/general'
+import type { TEditingData } from '@/type/general'
 
 type TEditExpertiseProps = {
   data: TEditingData[] | undefined

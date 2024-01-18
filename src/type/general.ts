@@ -1,6 +1,6 @@
-import { AppRouter } from '@/server/routers/_app'
-import { Interpolation, Theme } from '@emotion/react'
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
+import { type AppRouter } from '@/server/routers/_app'
+import type { Interpolation, Theme } from '@emotion/react'
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 
 export type TEmotionCSS = Interpolation<Theme>
 export type RouterOutput = inferRouterOutputs<AppRouter>

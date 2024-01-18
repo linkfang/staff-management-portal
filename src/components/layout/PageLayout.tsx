@@ -1,44 +1,11 @@
-import { COLORS } from '@/constants/styles'
-import { CaretDownOutlined } from '@ant-design/icons'
-import { type SerializedStyles, css } from '@emotion/react'
-import { Dropdown } from 'antd'
+import { type SerializedStyles } from '@emotion/react'
 import Head from 'next/head'
-import { ReactNode } from 'react'
-import Avatar from '../common/Avatar'
+import { type ReactNode } from 'react'
 
 /* Types */
 type TPageLayout = { title: string; actions?: ReactNode; children: ReactNode; style?: SerializedStyles }
 
-/* Constants */
-const avatarMenuItems = [
-  {
-    label: 'Profile',
-    key: 0,
-  },
-  {
-    label: 'Log Out',
-    key: 1,
-  },
-]
-
 /* Styles */
-const dropDownBtnStyle = css({
-  display: 'flex',
-  position: 'relative',
-  alignItems: 'center',
-  width: 66,
-  gap: 10,
-  cursor: 'pointer',
-  backgroundColor: '#fff',
-  border: 'none',
-  padding: 5,
-  borderRadius: 5,
-  ':hover': {
-    color: COLORS.primary,
-    '& .anticon-caret-down': { top: 23 },
-  },
-})
-
 const mainStyle = {
   marginBottom: 30,
   display: 'flex',
