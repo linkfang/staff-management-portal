@@ -16,7 +16,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   const queryClient = useQueryClient()
 
   queryClient.setDefaultOptions({
-    queries: { staleTime: 1000 * 120 },
+    queries: { staleTime: 1000 * 300 },
     mutations: {
       onError: (err) => api.error({ message: 'Something Went Wrong', description: `${err}` }),
       onSuccess: () => api.success({ message: 'Operation Succeeded' }),

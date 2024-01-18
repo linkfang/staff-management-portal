@@ -6,6 +6,7 @@ import { trpc } from '@/utils/trpc'
 import { isValidEmail } from '@/utils/general'
 import { useState } from 'react'
 import { ColumnsType } from 'antd/es/table'
+import { MODAL_PROPS } from '@/constants/componentProps'
 
 // eslint-disable-next-line no-unused-vars
 type TUploadEmployeeModalProps = { openUpload: boolean; setOpenUpload: (open: boolean) => void }
@@ -97,7 +98,9 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
                 return
               }
 
-              const isFieldEmpty = requiredColumns.some((field) => !item[field].replaceAll(' ', ''))
+              const isFieldEmpty = requiredColumns.some((field) =>
+                field === 'preferredName' ? false : !item[field].replaceAll(' ', '')
+              )
               if (isFieldEmpty) {
                 invalidItems.push({ ...item, errorType: 'Empty Field' })
                 return
@@ -131,11 +134,7 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
 
   return (
     <Modal
-      destroyOnClose
-      maskClosable={!isMutating}
-      closable={!isMutating}
-      cancelButtonProps={{ disabled: isMutating }}
-      centered
+      {...MODAL_PROPS(isMutating)}
       width={800}
       title="Upload to Add Employees"
       open={openUpload}
@@ -144,7 +143,7 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
         setInvalidItem(undefined)
         setOpenUpload(false)
       }}
-      okButtonProps={{ disabled: !uploadingItems, loading: isMutating }}
+      okButtonProps={{ disabled: !uploadingItems }}
       okText="Upload"
       onOk={() => {
         if (uploadingItems) mutate(uploadingItems)

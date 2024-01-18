@@ -21,3 +21,13 @@ export const TABLE_PROPS = ({ showTotalLabel }: TTableProps) => ({
     ),
   },
 })
+
+export const MODAL_PROPS = (isMutating: boolean) =>
+  ({
+    destroyOnClose: true,
+    confirmLoading: isMutating,
+    maskClosable: !isMutating,
+    closable: !isMutating,
+    cancelButtonProps: { disabled: isMutating },
+    centered: true,
+  }) as const

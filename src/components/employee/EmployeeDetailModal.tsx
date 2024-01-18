@@ -6,6 +6,7 @@ import { trpc } from '@/utils/trpc'
 import { RouterInput, TPersonData } from '@/type/general'
 import { displayName } from '@/utils/general'
 import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
+import { MODAL_PROPS } from '@/constants/componentProps'
 
 /* Types */
 type TPersonSkills = TPersonData['personSkills'][0]
@@ -86,9 +87,11 @@ const EmployeeDetailModal = ({
 
   return (
     <Modal
+      {...MODAL_PROPS(isLoading)}
       title={isEdit ? `Edit ${displayName(selectedPerson)}` : 'Add an Employee'}
       open={shouldOpen}
-      centered={true}
+      onOk={form.submit}
+      okText={isEdit ? 'Save' : 'Add'}
       onCancel={() => {
         setShouldOpen(false)
         if (!isEdit) {
@@ -96,11 +99,6 @@ const EmployeeDetailModal = ({
           setPersonSkills([])
         }
       }}
-      onOk={form.submit}
-      confirmLoading={isLoading}
-      cancelButtonProps={{ disabled: isLoading }}
-      closable={!isLoading}
-      okText={isEdit ? 'Save' : 'Add'}
     >
       <Form
         form={form}

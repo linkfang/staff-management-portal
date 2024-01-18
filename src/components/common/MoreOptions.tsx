@@ -4,6 +4,7 @@ import EditExpertise from '../expertise/EditExpertise'
 import { useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import { TEditingData } from '@/type/general'
+import { MODAL_PROPS } from '@/constants/componentProps'
 
 const findToBeDeleted = (preData: (Record<string, string | number> & { id: number })[], newData: TEditingData[]) => {
   const toBeDeleted = []
@@ -20,23 +21,32 @@ const MoreOptions = () => {
 
   const [shouldOpen, setShouldOpen] = useState(false)
   const [type, setType] = useState<'Expertise' | 'Skills'>('Expertise')
+  const isEditingExpertise = type === 'Expertise'
 
-  const { data: expertiseData, refetch: refetchExpertise } = trpc.findManyExpertise.useQuery(undefined, {
+  const {
+    data: expertiseData,
+    refetch: refetchExpertise,
+    isFetching: isFetchingExpertise,
+  } = trpc.findManyExpertise.useQuery(undefined, {
     select: (data) => data.map(({ id, name }) => ({ id, name })),
   })
 
-  const { data: skillsData, refetch: refetchSkills } = trpc.findManySkill.useQuery(undefined, {
+  const {
+    data: skillsData,
+    refetch: refetchSkills,
+    isFetching: isFetchingSkills,
+  } = trpc.findManySkill.useQuery(undefined, {
     select: (data) => data.map(({ name, id }) => ({ id, name })),
   })
 
-  const { mutate: mutateExpertise } = trpc.editManyExpertise.useMutation({
+  const { mutate: mutateExpertise, isLoading: isMutatingExpertise } = trpc.editManyExpertise.useMutation({
     onSuccess: () => {
       refetchExpertise()
       notification.success({ message: 'Updated expertise' })
     },
   })
 
-  const { mutate: mutateSkills } = trpc.editManySkills.useMutation({
+  const { mutate: mutateSkills, isLoading: isMutatingSkills } = trpc.editManySkills.useMutation({
     onSuccess: () => {
       refetchSkills()
       notification.success({ message: 'Updated skills' })
@@ -87,8 +97,7 @@ const MoreOptions = () => {
       </Dropdown>
 
       <Modal
-        destroyOnClose
-        centered
+        {...MODAL_PROPS(isEditingExpertise ? isMutatingExpertise : isMutatingSkills)}
         title={`Edit ${type}`}
         footer={null}
         open={shouldOpen}
@@ -96,9 +105,11 @@ const MoreOptions = () => {
         css={{ minWidth: 600 }}
       >
         <EditExpertise
-          data={type === 'Expertise' ? expertiseData : skillsData}
+          data={isEditingExpertise ? expertiseData : skillsData}
           closeModal={() => setShouldOpen(false)}
-          callbackFunc={type === 'Expertise' ? editExpertiseCallback : editSkillCallback}
+          callbackFunc={isEditingExpertise ? editExpertiseCallback : editSkillCallback}
+          isMutating={isEditingExpertise ? isMutatingExpertise : isMutatingSkills}
+          isFetching={isEditingExpertise ? isFetchingExpertise : isFetchingSkills}
         />
       </Modal>
     </>
