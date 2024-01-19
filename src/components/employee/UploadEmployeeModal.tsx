@@ -5,10 +5,9 @@ import { parse } from 'papaparse'
 import { trpc } from '@/utils/trpc'
 import { isValidEmail } from '@/utils/general'
 import { useState } from 'react'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 import { MODAL_PROPS } from '@/constants/componentProps'
 
-// eslint-disable-next-line no-unused-vars
 type TUploadEmployeeModalProps = { openUpload: boolean; setOpenUpload: (open: boolean) => void }
 type TUploadPersonData = {
   firstName: string

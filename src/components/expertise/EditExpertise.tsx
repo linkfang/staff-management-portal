@@ -2,14 +2,13 @@ import { App, Button, Form, Input, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { CloseOutlined } from '@ant-design/icons'
 import { COLORS, STYLES } from '@/constants/styles'
-import { TEditingData } from '@/type/general'
+import type { TEditingData } from '@/type/general'
 
 type TEditExpertiseProps = {
   data: TEditingData[] | undefined
   isMutating: boolean
   isFetching: boolean
   closeModal: () => void
-  // eslint-disable-next-line no-unused-vars
   callbackFunc: (data: TEditingData[]) => void
 }
 const chipStyle = {

@@ -3,7 +3,7 @@ import { ClickableDots } from '../common/ClickableDots'
 import { STYLES } from '@/constants/styles'
 import { useCallback, useEffect, useState } from 'react'
 import { trpc } from '@/utils/trpc'
-import { RouterInput, TPersonData } from '@/type/general'
+import type { RouterInput, TPersonData } from '@/type/general'
 import { displayName } from '@/utils/general'
 import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
 import { MODAL_PROPS } from '@/constants/componentProps'
@@ -18,19 +18,16 @@ type TPersonDataForm = Omit<TCreatePersonData, 'personSkills'> & {
 
 type TEmployeeDetailModal = {
   shouldOpen: boolean
-  // eslint-disable-next-line no-unused-vars
   setShouldOpen: (open: boolean) => void
   isLoading: boolean
 } & (
   | {
       isEdit: true
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (person: TPersonDataUpdate) => void
       selectedPerson: TPersonData
     }
   | {
       isEdit: false
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (person: TCreatePersonData) => void
       selectedPerson: undefined
     }

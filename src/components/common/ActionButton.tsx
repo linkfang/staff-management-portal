@@ -1,5 +1,5 @@
 import { COLORS, STYLES } from '@/constants/styles'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 type TActionButtonProps = { icon: ReactNode; action?: () => void }
 const ActionButton = ({ icon, action }: TActionButtonProps) => (

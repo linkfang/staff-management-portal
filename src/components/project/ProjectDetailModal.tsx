@@ -2,9 +2,9 @@ import { DatePicker, Form, Input, Modal, Select } from 'antd'
 import { useEffect } from 'react'
 import { trpc } from '@/utils/trpc'
 import { displayName } from '@/utils/general'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs, { type Dayjs } from 'dayjs'
 import { DEFAULT_SELECT_OPTIONS } from '@/constants/general'
-import { RouterInput, TProjectData } from '@/type/general'
+import type { RouterInput, TProjectData } from '@/type/general'
 import { MODAL_PROPS } from '@/constants/componentProps'
 
 /* Types */
@@ -14,19 +14,16 @@ type TProjectDataForm = Omit<TProjectDataCreate, 'startDate' | 'endDate'> & { st
 
 type TProjectDetailModal = {
   shouldOpen: boolean
-  // eslint-disable-next-line no-unused-vars
   setShouldOpen: (open: boolean) => void
   isLoading: boolean
 } & (
   | {
       isEdit: true
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (project: TProjectDataUpdate) => void
       selectedProject: TProjectData
     }
   | {
       isEdit: false
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (project: TProjectDataCreate) => void
       selectedProject: undefined
     }

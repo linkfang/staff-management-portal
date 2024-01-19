@@ -3,7 +3,7 @@ import { Dropdown, type MenuProps, Modal, App } from 'antd'
 import EditExpertise from '../expertise/EditExpertise'
 import { useState } from 'react'
 import { trpc } from '@/utils/trpc'
-import { TEditingData } from '@/type/general'
+import type { TEditingData } from '@/type/general'
 import { MODAL_PROPS } from '@/constants/componentProps'
 
 const findToBeDeleted = (preData: (Record<string, string | number> & { id: number })[], newData: TEditingData[]) => {

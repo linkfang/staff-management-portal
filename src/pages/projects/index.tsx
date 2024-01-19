@@ -67,17 +67,21 @@ const columns: ColumnsType<TProjectData> = [
 ]
 
 const renderActionColumn = (
-  // eslint-disable-next-line no-unused-vars
   onEdit: (project: TProjectData) => void,
-  // eslint-disable-next-line no-unused-vars
-  onDelete: (project: TProjectData) => Promise<TProjectResDeleted>
+  onDelete: (project: TProjectData) => Promise<TProjectResDeleted>,
+  isDeletingProject: boolean
 ) => ({
   title: 'Action',
   width: 180,
   render: (project: TProjectData) => (
     <div css={{ display: 'flex', gap: 10 }}>
       <Button onClick={() => onEdit(project)}>Edit</Button>
-      <Popconfirm placement="left" title={`Delete Project - ${project.name}?`} onConfirm={() => onDelete(project)}>
+      <Popconfirm
+        placement="left"
+        title={`Delete Project - ${project.name}?`}
+        onConfirm={() => onDelete(project)}
+        cancelButtonProps={{ disabled: isDeletingProject }}
+      >
         <Button>Delete</Button>
       </Popconfirm>
     </div>
@@ -104,7 +108,7 @@ const ProjectsPage = () => {
     },
   })
 
-  const { mutateAsync: deleteProject } = trpc.deleteAProject.useMutation({
+  const { mutateAsync: deleteProject, isLoading: isDeletingProject } = trpc.deleteAProject.useMutation({
     onSuccess: (project) => {
       notification.success({ message: `Deleted ${project.name}` })
       onMutationSuccess()
@@ -141,7 +145,7 @@ const ProjectsPage = () => {
     >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
-        columns={[...columns, renderActionColumn(onEditClick, onDeleteClick)]}
+        columns={[...columns, renderActionColumn(onEditClick, onDeleteClick, isDeletingProject)]}
         dataSource={data ?? []}
         loading={isFetching}
         rowKey="id"
