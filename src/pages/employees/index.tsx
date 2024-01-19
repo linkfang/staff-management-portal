@@ -2,7 +2,7 @@ import EmployeeDetailModal from '@/components/employee/EmployeeDetailModal'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
 import { ALL_PATHS } from '@/constants/general'
-import type { TPersonData } from '@/type/general'
+import type { TExpertise, TPersonData } from '@/type/general'
 import { displayName, isOnGoing } from '@/utils/general'
 import { renderSkillDots } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
@@ -18,7 +18,9 @@ import MoreOptions from '@/components/common/MoreOptions'
 import UploadEmployeeModal from '@/components/employee/UploadEmployeeModal'
 
 /* Constants */
-const columns: ColumnsType<TPersonData> = [
+const columns: ({ expertiseData }: { expertiseData: TExpertise[] | undefined }) => ColumnsType<TPersonData> = ({
+  expertiseData,
+}) => [
   {
     title: 'Full Name',
     width: 190,
@@ -29,6 +31,8 @@ const columns: ColumnsType<TPersonData> = [
   {
     title: 'Expertise',
     width: 220,
+    filters: expertiseData?.map((item) => ({ text: item.name, value: item.name })),
+    onFilter: (value, person) => person.expertise.some((item) => item.name === value),
     render: ({ expertise }: TPersonData) => <>{expertise.map((item) => item.name).join(', ')}</>,
   },
   {
@@ -56,12 +60,15 @@ const columns: ColumnsType<TPersonData> = [
 
 /* Functions */
 const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
-  skills.map((item) => ({
-    title: item,
-    width: 120,
+  skills.map((skillName) => ({
+    title: skillName,
+    width: 150,
+    filters: [1, 2, 3, 4, 5].map((ele) => ({ text: ele, value: ele })),
+    onFilter: (item, person) =>
+      person.personSkills.find((personSkill) => personSkill.skill.name === skillName)?.level === item,
     sorter: (a, b) => {
-      const skillLevelA = a.personSkills.find((personSkill) => personSkill?.skill?.name === item)?.level ?? 0
-      const skillLevelB = b.personSkills.find((personSkill) => personSkill?.skill?.name === item)?.level ?? 0
+      const skillLevelA = a.personSkills.find((personSkill) => personSkill?.skill?.name === skillName)?.level ?? 0
+      const skillLevelB = b.personSkills.find((personSkill) => personSkill?.skill?.name === skillName)?.level ?? 0
 
       // Doing all 3 conditions to make the order change as little as possible
       if (skillLevelB > skillLevelA) return 1
@@ -69,7 +76,7 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
       return 0
     },
     render: ({ personSkills }: TPersonData) => {
-      const skillLevel = personSkills.find((personSkill) => personSkill?.skill?.name === item)?.level ?? 0
+      const skillLevel = personSkills.find((personSkill) => personSkill?.skill?.name === skillName)?.level ?? 0
       return renderSkillDots(skillLevel)
     },
   }))
@@ -104,6 +111,7 @@ const EmployeesPage = () => {
 
   const skills = trpc.findManySkill.useQuery()
   const persons = trpc.findManyPerson.useQuery()
+  const { data: expertiseData, isFetching: isFetchingExpertise } = trpc.findManyExpertise.useQuery()
 
   const onMutationSuccess = (message: string) => {
     setShouldOpen(false)
@@ -152,12 +160,12 @@ const EmployeesPage = () => {
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[
-          ...columns,
+          ...columns({ expertiseData }),
           renderEditButtonColumn(editBtnCallback, deleteCallback, isDeletingPerson),
           ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
         ]}
         dataSource={persons?.data}
-        loading={skills.isFetching || persons.isFetching}
+        loading={skills.isFetching || persons.isFetching || isFetchingExpertise}
         rowKey="email"
       />
 

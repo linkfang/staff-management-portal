@@ -1,26 +1,30 @@
 import ActionButton from '@/components/common/ActionButton'
 import PageLayout from '@/components/layout/PageLayout'
 import { TABLE_PROPS } from '@/constants/componentProps'
-import { statusToColorObj } from '@/constants/general'
+import { PROJECT_STATUSES, statusToColorObj } from '@/constants/general'
 import { renderProjectStatus } from '@/utils/general'
 import { renderMonoDateLabel } from '@/utils/renderElement'
 import { trpc } from '@/utils/trpc'
 import { App, Button, Popconfirm, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { AppstoreAddOutlined } from '@ant-design/icons'
-import type { RouterOutput, TProjectData } from '@/type/general'
+import type { RouterOutput, TProjectData, TExpertise } from '@/type/general'
 import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 import { useState } from 'react'
 import MoreOptions from '@/components/common/MoreOptions'
 
 type TProjectResDeleted = RouterOutput['deleteAProject']
 
-const columns: ColumnsType<TProjectData> = [
+const columns: ({ fieldsData }: { fieldsData: TExpertise[] | undefined }) => ColumnsType<TProjectData> = ({
+  fieldsData,
+}) => [
   { title: 'Name', dataIndex: 'name', width: 200, fixed: 'left', ellipsis: true },
   { title: 'Customer', dataIndex: 'customer', width: 220, ellipsis: true },
   {
     title: 'Status',
     width: 120,
+    filters: Object.keys(PROJECT_STATUSES).map((item) => ({ text: item, value: item })),
+    onFilter: (value, project) => renderProjectStatus(project) === value,
     sorter: (a, b) => a.startDate.localeCompare(b.startDate),
     render: (project: TProjectData) => {
       const status = renderProjectStatus(project)
@@ -54,6 +58,8 @@ const columns: ColumnsType<TProjectData> = [
     title: 'Fields',
     width: 180,
     ellipsis: true,
+    filters: fieldsData?.map((item) => ({ text: item.name, value: item.name })),
+    onFilter: (value, project) => project.fields.some((item) => item.name === value),
     render: ({ fields }: TProjectData) => <>{fields.map((field) => field.name).join(', ')}</>,
   },
   {
@@ -93,7 +99,8 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<TProjectData>()
   const { notification } = App.useApp()
 
-  const { data, isFetching, refetch: refetchProjects } = trpc.findManyProject.useQuery()
+  const { data, isFetching: isFetchingProjects, refetch: refetchProjects } = trpc.findManyProject.useQuery()
+  const { data: fieldsData, isFetching: isFetchingExpertise } = trpc.findManyExpertise.useQuery()
   const { mutate: createProject, isLoading: isCreating } = trpc.createAProject.useMutation({
     onSuccess: (_, project) => {
       notification.success({ message: `Added ${project.name}` })
@@ -145,9 +152,9 @@ const ProjectsPage = () => {
     >
       <Table
         {...TABLE_PROPS({ showTotalLabel: 'projects' })}
-        columns={[...columns, renderActionColumn(onEditClick, onDeleteClick, isDeletingProject)]}
+        columns={[...columns({ fieldsData }), renderActionColumn(onEditClick, onDeleteClick, isDeletingProject)]}
         dataSource={data ?? []}
-        loading={isFetching}
+        loading={isFetchingProjects || isFetchingExpertise}
         rowKey="id"
       />
 
