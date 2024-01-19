@@ -113,11 +113,11 @@ const EmployeesPage = () => {
     notification.success({ message })
   }
 
-  const { mutate: updatePerson, isLoading } = trpc.updateAPerson.useMutation({
+  const { mutate: updatePerson, isLoading: isUpdating } = trpc.updateAPerson.useMutation({
     onSuccess: (_, person) => onMutationSuccess(`Updated ${displayName(person)}`),
   })
 
-  const { mutate: createPerson } = trpc.createAPerson.useMutation({
+  const { mutate: createPerson, isLoading: isCreating } = trpc.createAPerson.useMutation({
     onSuccess: (_, person) => onMutationSuccess(`Add ${displayName(person)}`),
   })
 
@@ -167,13 +167,13 @@ const EmployeesPage = () => {
         <EmployeeDetailModal
           callbackFunc={updatePerson}
           isEdit={!!selectedPerson}
-          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
+          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading: isUpdating }}
         />
       ) : (
         <EmployeeDetailModal
           callbackFunc={createPerson}
           isEdit={!!selectedPerson}
-          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading }}
+          {...{ shouldOpen, setShouldOpen, selectedPerson, isLoading: isCreating }}
         />
       )}
       <UploadEmployeeModal {...{ openUpload, setOpenUpload }} />
