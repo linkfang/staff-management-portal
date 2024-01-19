@@ -74,14 +74,23 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
     },
   }))
 
-// eslint-disable-next-line no-unused-vars
-const renderEditButtonColumn = (editCallback: (person: TPersonData) => void, deleteCallback: (id: number) => void) => ({
+const renderEditButtonColumn = (
+  // eslint-disable-next-line no-unused-vars
+  editCallback: (person: TPersonData) => void,
+  // eslint-disable-next-line no-unused-vars
+  deleteCallback: (id: number) => void,
+  isDeletingPerson: boolean
+) => ({
   title: 'Action',
   width: 160,
   render: (person: TPersonData) => (
     <div css={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
       <Button onClick={() => editCallback(person)}>Edit</Button>
-      <Popconfirm title={`Delete employee - ${displayName(person)}?`} onConfirm={() => deleteCallback(person.id)}>
+      <Popconfirm
+        title={`Delete employee - ${displayName(person)}?`}
+        onConfirm={() => deleteCallback(person.id)}
+        cancelButtonProps={{ disabled: isDeletingPerson }}
+      >
         <Button>Delete</Button>
       </Popconfirm>
     </div>
@@ -112,7 +121,7 @@ const EmployeesPage = () => {
     onSuccess: (_, person) => onMutationSuccess(`Add ${displayName(person)}`),
   })
 
-  const { mutateAsync: deletePerson } = trpc.deleteAPerson.useMutation({
+  const { mutateAsync: deletePerson, isLoading: isDeletingPerson } = trpc.deleteAPerson.useMutation({
     onSuccess: (response) => onMutationSuccess(`Deleted ${displayName(response[1])}`),
   })
 
@@ -146,7 +155,7 @@ const EmployeesPage = () => {
         {...TABLE_PROPS({ showTotalLabel: 'people' })}
         columns={[
           ...columns,
-          renderEditButtonColumn(editBtnCallback, deleteCallback),
+          renderEditButtonColumn(editBtnCallback, deleteCallback, isDeletingPerson),
           ...renderSkillColumns(skills?.data?.map((item) => item.name) ?? []),
         ]}
         dataSource={persons?.data}
