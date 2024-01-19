@@ -2,8 +2,8 @@ import { COLORS, STYLES } from '@/constants/styles'
 import { css } from '@emotion/react'
 import { useState } from 'react'
 
-// eslint-disable-next-line no-unused-vars
 type TClickableDots = { skillLevel: number; onClick: (level: number) => void }
+
 export const ClickableDots = ({ skillLevel, onClick }: TClickableDots) => {
   const [nth, setNth] = useState(-1)
 

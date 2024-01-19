@@ -8,7 +8,6 @@ import { useState } from 'react'
 import type { ColumnsType } from 'antd/es/table'
 import { MODAL_PROPS } from '@/constants/componentProps'
 
-// eslint-disable-next-line no-unused-vars
 type TUploadEmployeeModalProps = { openUpload: boolean; setOpenUpload: (open: boolean) => void }
 type TUploadPersonData = {
   firstName: string

@@ -18,19 +18,16 @@ type TPersonDataForm = Omit<TCreatePersonData, 'personSkills'> & {
 
 type TEmployeeDetailModal = {
   shouldOpen: boolean
-  // eslint-disable-next-line no-unused-vars
   setShouldOpen: (open: boolean) => void
   isLoading: boolean
 } & (
   | {
       isEdit: true
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (person: TPersonDataUpdate) => void
       selectedPerson: TPersonData
     }
   | {
       isEdit: false
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (person: TCreatePersonData) => void
       selectedPerson: undefined
     }

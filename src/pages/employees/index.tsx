@@ -75,9 +75,7 @@ const renderSkillColumns = (skills: string[]): ColumnsType<TPersonData> =>
   }))
 
 const renderEditButtonColumn = (
-  // eslint-disable-next-line no-unused-vars
   editCallback: (person: TPersonData) => void,
-  // eslint-disable-next-line no-unused-vars
   deleteCallback: (id: number) => void,
   isDeletingPerson: boolean
 ) => ({

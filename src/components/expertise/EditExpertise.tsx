@@ -9,7 +9,6 @@ type TEditExpertiseProps = {
   isMutating: boolean
   isFetching: boolean
   closeModal: () => void
-  // eslint-disable-next-line no-unused-vars
   callbackFunc: (data: TEditingData[]) => void
 }
 const chipStyle = {

@@ -14,19 +14,16 @@ type TProjectDataForm = Omit<TProjectDataCreate, 'startDate' | 'endDate'> & { st
 
 type TProjectDetailModal = {
   shouldOpen: boolean
-  // eslint-disable-next-line no-unused-vars
   setShouldOpen: (open: boolean) => void
   isLoading: boolean
 } & (
   | {
       isEdit: true
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (project: TProjectDataUpdate) => void
       selectedProject: TProjectData
     }
   | {
       isEdit: false
-      // eslint-disable-next-line no-unused-vars
       callbackFunc: (project: TProjectDataCreate) => void
       selectedProject: undefined
     }
