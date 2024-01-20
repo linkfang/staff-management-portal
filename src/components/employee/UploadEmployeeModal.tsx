@@ -62,77 +62,73 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
     maxCount: 1,
     accept: '.csv',
     style: { marginTop: 20 },
-    onChange: (info) => {
-      if (!existingData) return
-
-      const { status, error, originFileObj } = info.file
-
-      if (error) {
-        notification.error({ message: `${error}` })
-        return
-      }
-
-      if (status === 'done' && originFileObj)
-        parse(originFileObj, {
-          header: true,
-          skipEmptyLines: true,
-          complete: ({ data: uploadData }: { data: TUploadPersonData[] }) => {
-            // check if all required column/headers are included
-            const missingColumns = requiredColumns.filter((field) => !uploadData[0].hasOwnProperty(field))
-            const missingColumnsLength = missingColumns.length
-            const moreThanOneMissing = missingColumnsLength > 1
-
-            if (missingColumnsLength > 0) {
-              setUploadingItems(undefined)
-              notification.error({
-                message: `${missingColumns.join(', ')} column${moreThanOneMissing ? 's are' : ' is'} missing`,
-              })
-              return
-            }
-
-            if (uploadData.length > 6) {
-              notification.error({ message: 'Demo version can only upload 6 or less employees at a time' })
-              return
-            }
-
-            const invalidItems: TUploadPersonData[] = []
-            uploadData.forEach((item, index) => {
-              if (!isValidEmail(item.email)) {
-                invalidItems.push({ ...item, errorType: 'Invalid Email' })
-                return
-              }
-
-              const isFieldEmpty = requiredColumns.some((field) =>
-                field === 'preferredName' ? false : !item[field].replaceAll(' ', '')
-              )
-              if (isFieldEmpty) {
-                invalidItems.push({ ...item, errorType: 'Empty Field' })
-                return
-              }
-
-              const isExist = existingData.find((current) => current.email === item.email.replaceAll(' ', ''))
-              if (isExist) {
-                invalidItems.push({ ...item, errorType: 'Email Already Exists' })
-                return
-              }
-
-              const isDuplicated = uploadData.findIndex((ele) => ele.email === item.email) !== index
-              if (isDuplicated) invalidItems.push({ ...item, errorType: 'Duplicated Email' })
-            })
-
-            if (invalidItems.length > 0) {
-              setUploadingItems(undefined)
-              setInvalidItem(invalidItems)
-              return
-            }
-
-            setInvalidItem(undefined)
-            setUploadingItems(uploadData)
-          },
-        })
-    },
     onDrop: (info) => {
       if (info.dataTransfer.files[0].type !== 'text/csv') notification.error({ message: 'Only supports .csv files' })
+    },
+    beforeUpload: (file) => {
+      if (!existingData) return false
+
+      parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: ({ data: uploadData }: { data: TUploadPersonData[] }) => {
+          // check if all required column/headers are included
+          const missingColumns = requiredColumns.filter((field) => !uploadData[0].hasOwnProperty(field))
+          const missingColumnsLength = missingColumns.length
+          const moreThanOneMissing = missingColumnsLength > 1
+
+          if (missingColumnsLength > 0) {
+            setUploadingItems(undefined)
+            notification.error({
+              message: `${missingColumns.join(', ')} column${moreThanOneMissing ? 's are' : ' is'} missing`,
+            })
+            setUploadingItems(undefined)
+            setInvalidItem(undefined)
+            return false
+          }
+
+          if (uploadData.length > 6) {
+            notification.error({ message: 'Demo version can only upload 6 or less employees at a time' })
+            return false
+          }
+
+          const invalidItems: TUploadPersonData[] = []
+          uploadData.forEach((item, index) => {
+            if (!isValidEmail(item.email)) {
+              invalidItems.push({ ...item, errorType: 'Invalid Email' })
+              return false
+            }
+
+            const isFieldEmpty = requiredColumns.some((field) =>
+              field === 'preferredName' ? false : !item[field].replaceAll(' ', '')
+            )
+            if (isFieldEmpty) {
+              invalidItems.push({ ...item, errorType: 'Empty Field' })
+              return false
+            }
+
+            const isExist = existingData.find((current) => current.email === item.email.replaceAll(' ', ''))
+            if (isExist) {
+              invalidItems.push({ ...item, errorType: 'Email Already Exists' })
+              return false
+            }
+
+            const isDuplicated = uploadData.findIndex((ele) => ele.email === item.email) !== index
+            if (isDuplicated) invalidItems.push({ ...item, errorType: 'Duplicated Email' })
+          })
+
+          if (invalidItems.length > 0) {
+            setUploadingItems(undefined)
+            setInvalidItem(invalidItems)
+            return false
+          }
+
+          setInvalidItem(undefined)
+          setUploadingItems(uploadData)
+        },
+      })
+
+      return false
     },
   }
 
