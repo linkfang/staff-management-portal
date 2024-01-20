@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server'
 import { procedure, router } from '../trpc'
 import { z } from 'zod'
 
@@ -132,6 +133,12 @@ export const personRouter = router({
       )
     )
     .mutation(async ({ ctx: { prisma }, input }) => {
+      if (input.length > 6)
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Demo version can only upload 6 or less employees at a time',
+        })
+
       const newPersons = await prisma.person.createMany({
         data: input,
       })

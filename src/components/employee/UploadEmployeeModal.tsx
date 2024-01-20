@@ -90,6 +90,11 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
               return
             }
 
+            if (uploadData.length > 6) {
+              notification.error({ message: 'Demo version can only upload 6 or less employees at a time' })
+              return
+            }
+
             const invalidItems: TUploadPersonData[] = []
             uploadData.forEach((item, index) => {
               if (!isValidEmail(item.email)) {
@@ -184,6 +189,7 @@ const UploadEmployeeModal = ({ openUpload, setOpenUpload }: TUploadEmployeeModal
               ]}
               css={{ width: 1000 }}
               scroll={{ x: 800 }}
+              rowKey={(record, index) => `${index}-${record.email}`}
             />
           </>
         )}
