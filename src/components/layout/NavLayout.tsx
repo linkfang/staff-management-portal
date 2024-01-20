@@ -7,6 +7,8 @@ import type { TEmotionCSS } from '@/type/general'
 import Head from 'next/head'
 import { ALL_PATHS } from '@/constants/general'
 import ActionButton from '../common/ActionButton'
+import Image from 'next/image'
+import logo from '@/media/demo-logo.svg'
 
 /* Constants */
 const menuItems = [
@@ -128,7 +130,7 @@ const NavLayout = ({ content }: { content: ReactNode }) => {
           <div css={{ position: 'absolute', left: 20 }}>
             <ActionButton icon={<MenuOutlined />} action={() => setOpenNav((pre) => !pre)} />
           </div>
-          <p>Logo</p>
+          <Image src={logo} width={17} height={25} alt="company logo" />
         </div>
 
         <div
@@ -165,26 +167,35 @@ const NavLayout = ({ content }: { content: ReactNode }) => {
         ></button>
 
         <nav css={navMenuStyle(openNav)}>
-          <i
+          <div
             css={{
-              textAlign: 'center',
-              height: 62,
+              display: 'flex',
+              justifyContent: 'center',
               '@media(max-width: 760px)': {
                 display: 'none',
               },
             }}
           >
-            Logo
-          </i>
+            <Image src={logo} width={35} height={52} alt="company logo" />
+          </div>
+
           <span
             css={{
-              height: 5,
+              height: 52,
               '@media(min-width: 760px)': {
                 display: 'none',
               },
             }}
           ></span>
-          <div css={{ position: 'absolute', top: 20 }}>
+          <div
+            css={{
+              position: 'absolute',
+              top: 20,
+              '@media(min-width: 760px)': {
+                display: 'none',
+              },
+            }}
+          >
             <ActionButton icon={<LeftOutlined />} action={() => setOpenNav((pre) => !pre)} />
           </div>
 
