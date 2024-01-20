@@ -31,9 +31,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       }}
     >
       <App>
-        <NavLayout>
-          <Component {...pageProps} />
-        </NavLayout>
+        <NavLayout content={<Component {...pageProps} />} />
         {contextHolder}
       </App>
     </ConfigProvider>
