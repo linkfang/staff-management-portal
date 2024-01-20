@@ -1,67 +1,29 @@
-import dayjs from 'dayjs'
-
 import { procedure, router } from '../trpc'
-import { renderProjectStatus } from '@/utils/general'
 import { z } from 'zod'
 
 export const personRouter = router({
   findFirstPerson: procedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
-    const findFirstPerson = await ctx.prisma.person.findFirst({
+    const findFirstPerson = await ctx.prisma.person.findUnique({
       include: {
         expertise: {},
-        personSkills: { include: { skill: { include: { field: {} } } } },
-        projects: {},
+        personSkills: { include: { skill: { include: { field: {} } } }, orderBy: { skill: { name: 'asc' } } },
+        projects: { orderBy: { startDate: 'asc' } },
       },
-      where: { id: { equals: input.id } },
+      where: { id: input.id },
     })
-    const formattedProject = findFirstPerson?.projects.map((project) => ({
-      ...project,
-      status: renderProjectStatus(project),
-    }))
 
-    return { ...findFirstPerson, projects: formattedProject }
+    return findFirstPerson
   }),
   findManyPerson: procedure.query(async ({ ctx }) => {
     const findManyPerson = await ctx.prisma.person.findMany({
-      include: { expertise: {}, personSkills: { include: { skill: {} } }, projects: {} },
-      orderBy: { id: 'asc' },
+      include: {
+        expertise: { orderBy: { name: 'asc' } },
+        personSkills: { include: { skill: {} }, orderBy: { skill: { name: 'asc' } } },
+        projects: { orderBy: { name: 'asc' } },
+      },
+      orderBy: { id: 'desc' },
     })
-    return findManyPerson.map((person) => {
-      type TProjectsRaw = (typeof person.projects)[0]
-      type TProjectsFormatted = {
-        upcoming: TProjectsRaw[]
-        onGoing: TProjectsRaw[]
-        completed: TProjectsRaw[]
-        totalAmount: number
-      }
-
-      const newProjects: TProjectsFormatted = {
-        upcoming: [],
-        onGoing: [],
-        completed: [],
-        totalAmount: person.projects.length,
-      }
-
-      for (let i = 0; i < person.projects.length; i++) {
-        const project = person.projects[i]
-        if (dayjs().isAfter(project.endDate)) {
-          newProjects.completed.push(project)
-          continue
-        }
-
-        if (dayjs().isSameOrAfter(project.startDate) && dayjs().isSameOrBefore(project.endDate)) {
-          newProjects.onGoing.push(project)
-          continue
-        }
-
-        if (dayjs().isBefore(project.startDate)) newProjects.upcoming.push(project)
-      }
-
-      return {
-        ...person,
-        projects: newProjects,
-      }
-    })
+    return findManyPerson
   }),
   updateAPerson: procedure
     .input(
@@ -77,11 +39,14 @@ export const personRouter = router({
       })
     )
     .mutation(
-      async ({ ctx, input: { id, firstName, lastName, preferredName, title, expertise, projects, personSkills } }) => {
-        if (!personSkills) return
+      async ({
+        ctx: { prisma },
+        input: { id, firstName, lastName, preferredName, title, expertise, projects, personSkills },
+      }) => {
+        if (!personSkills) personSkills = []
 
-        await ctx.prisma.$transaction([
-          ctx.prisma.person.update({
+        await prisma.$transaction([
+          prisma.person.update({
             where: { id },
             data: {
               firstName,
@@ -93,13 +58,13 @@ export const personRouter = router({
             },
           }),
           ...personSkills?.map((item) =>
-            ctx.prisma.personSkill.upsert({
+            prisma.personSkill.upsert({
               where: { personId_skillId: { personId: id, skillId: item.skillId } },
               update: { level: item.level },
               create: { personId: id, skillId: item.skillId, level: item.level },
             })
           ),
-          ctx.prisma.personSkill.deleteMany({
+          prisma.personSkill.deleteMany({
             where: {
               skillId: { notIn: personSkills.map((item) => item.skillId) },
               personId: { equals: id },
@@ -110,4 +75,67 @@ export const personRouter = router({
         return `Updated ${preferredName || firstName} ${lastName}`
       }
     ),
+  createAPerson: procedure
+    .input(
+      z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+        email: z.string(),
+        preferredName: z.string(),
+        title: z.string(),
+        expertise: z.array(z.number()),
+        projects: z.array(z.number()).optional(),
+        personSkills: z.array(z.object({ level: z.number(), personId: z.number(), skillId: z.number() })),
+      })
+    )
+    .mutation(
+      async ({
+        ctx: { prisma },
+        input: { firstName, lastName, email, preferredName, title, expertise, projects, personSkills },
+      }) => {
+        const newPerson = await prisma.person.create({
+          data: {
+            firstName,
+            lastName,
+            email,
+            preferredName,
+            title,
+            expertise: { connect: expertise.map((id) => ({ id })) },
+            projects: { connect: projects?.map((id) => ({ id })) },
+          },
+        })
+
+        await prisma.personSkill.createMany({
+          data: personSkills.map(({ skillId, level }) => ({ skillId, level, personId: newPerson.id })),
+        })
+
+        return `Created ${preferredName || firstName} ${lastName}`
+      }
+    ),
+  deleteAPerson: procedure.input(z.number()).mutation(async ({ ctx: { prisma }, input }) => {
+    const response = await prisma.$transaction([
+      prisma.personSkill.deleteMany({ where: { personId: { equals: input } } }),
+      prisma.person.delete({ where: { id: input } }),
+    ])
+    return response
+  }),
+  createManyPersons: procedure
+    .input(
+      z.array(
+        z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          email: z.string(),
+          preferredName: z.string(),
+          title: z.string(),
+        })
+      )
+    )
+    .mutation(async ({ ctx: { prisma }, input }) => {
+      const newPersons = await prisma.person.createMany({
+        data: input,
+      })
+
+      return newPersons
+    }),
 })

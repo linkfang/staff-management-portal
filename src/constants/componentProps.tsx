@@ -6,6 +6,9 @@ export const TABLE_PROPS = ({ showTotalLabel }: TTableProps) => ({
   css: {
     width: SIZES.pageWidth,
     height: SIZES.tableHeightL,
+    '@media(max-width: 760px)': {
+      width: 'calc(100vw - 40px)',
+    },
   },
   scroll: { x: 300, y: SIZES.tableHeightL },
   showSorterTooltip: false,
@@ -21,3 +24,13 @@ export const TABLE_PROPS = ({ showTotalLabel }: TTableProps) => ({
     ),
   },
 })
+
+export const MODAL_PROPS = (isMutating: boolean) =>
+  ({
+    destroyOnClose: true,
+    confirmLoading: isMutating,
+    maskClosable: !isMutating,
+    closable: !isMutating,
+    cancelButtonProps: { disabled: isMutating },
+    centered: true,
+  }) as const

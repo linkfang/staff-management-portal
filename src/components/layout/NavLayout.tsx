@@ -1,12 +1,14 @@
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { HomeOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons'
+import { HomeOutlined, ProjectOutlined, UserOutlined, MenuOutlined, LeftOutlined } from '@ant-design/icons'
 import { COLORS, SIZES } from '@/constants/styles'
 import { useRouter } from 'next/router'
-import { TEmotionCSS } from '@/type/general'
+import type { TEmotionCSS } from '@/type/general'
 import Head from 'next/head'
 import { ALL_PATHS } from '@/constants/general'
-import { css } from '@emotion/react'
+import ActionButton from '../common/ActionButton'
+import Image from 'next/image'
+import logo from '@/media/demo-logo.svg'
 
 /* Constants */
 const menuItems = [
@@ -28,7 +30,8 @@ const menuItems = [
 ] as const
 
 /* Styles */
-const navMenuStyle: TEmotionCSS = {
+const navMenuStyle: (openNav: boolean) => TEmotionCSS = (openNav) => ({
+  zIndex: 99,
   backgroundColor: '#fff',
   position: 'fixed',
   width: SIZES.navMenuExpand,
@@ -39,7 +42,11 @@ const navMenuStyle: TEmotionCSS = {
   gap: 20,
   top: 0,
   bottom: 0,
-}
+  transition: 'all 0.3s ease-out',
+  '@media(max-width: 760px)': {
+    left: openNav ? 0 : -240,
+  },
+})
 
 const activeItemStyle: TEmotionCSS = {
   backgroundColor: COLORS.primaryHighlight,
@@ -80,9 +87,10 @@ const includePath = (pathname: string, href: string) =>
   (pathname.includes(href) && href.length > 1) || pathname === href ? true : false
 
 /* Component */
-const NavLayout = ({ children }: { children: ReactNode }) => {
+const NavLayout = ({ content }: { content: ReactNode }) => {
   const { pathname } = useRouter()
   const [activeDecoration, setActiveDecoration] = useState(132)
+  const [openNav, setOpenNav] = useState(false)
   const activeItemRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
@@ -101,13 +109,95 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
         css={{
           display: 'flex',
           height: '100svh',
-          '@media(max-width: 680px)': {
-            display: 'none',
+          '@media(max-width: 760px)': {
+            flexDirection: 'column',
           },
         }}
       >
-        <nav css={navMenuStyle}>
-          <i css={{ textAlign: 'center', height: 62 }}>Logo</i>
+        <div
+          css={{
+            display: 'none',
+            '@media(max-width: 760px)': {
+              display: 'flex',
+              position: 'relative',
+              justifyContent: 'center',
+              boxShadow: '0 0 20px rgba(0,0,0,0.1)',
+              padding: 20,
+              backgroundColor: '#fff',
+            },
+          }}
+        >
+          <div css={{ position: 'absolute', left: 20 }}>
+            <ActionButton icon={<MenuOutlined />} action={() => setOpenNav((pre) => !pre)} />
+          </div>
+          <Image src={logo} width={17} height={25} alt="company logo" />
+        </div>
+
+        <div
+          css={{
+            width: `calc(${SIZES.navMenuExpand}px + 30px)`,
+            '@media(max-width: 760px)': {
+              display: 'none',
+            },
+          }}
+        ></div>
+
+        <main
+          css={{
+            flex: 1,
+            padding: `50px ${SIZES.bodyPaddingHorizontal}px`,
+            '@media(max-width: 760px)': {
+              padding: 20,
+            },
+          }}
+        >
+          {content}
+        </main>
+
+        <button
+          css={{
+            display: openNav ? 'block' : 'none',
+            border: 'none',
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99,
+          }}
+          onClick={() => setOpenNav(false)}
+        ></button>
+
+        <nav css={navMenuStyle(openNav)}>
+          <div
+            css={{
+              display: 'flex',
+              justifyContent: 'center',
+              '@media(max-width: 760px)': {
+                display: 'none',
+              },
+            }}
+          >
+            <Image src={logo} width={35} height={52} alt="company logo" />
+          </div>
+
+          <span
+            css={{
+              height: 52,
+              '@media(min-width: 760px)': {
+                display: 'none',
+              },
+            }}
+          ></span>
+          <div
+            css={{
+              position: 'absolute',
+              top: 20,
+              '@media(min-width: 760px)': {
+                display: 'none',
+              },
+            }}
+          >
+            <ActionButton icon={<LeftOutlined />} action={() => setOpenNav((pre) => !pre)} />
+          </div>
 
           {menuItems.map(({ href, icon, label }) => (
             <Link
@@ -122,30 +212,7 @@ const NavLayout = ({ children }: { children: ReactNode }) => {
 
           {<span css={{ ...activeDecorationStyle, top: 16 + activeDecoration }}></span>}
         </nav>
-        <div css={{ width: `calc(${SIZES.navMenuExpand}px + 30px)` }}></div>
-        <main css={{ flex: 1, padding: `50px ${SIZES.bodyPaddingHorizontal}px` }}>{children}</main>
       </div>
-
-      <section
-        css={css({
-          '@media(min-width: 680px)': {
-            display: 'none',
-          },
-          '@media(max-width: 680px)': {
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100svh',
-            color: COLORS.textGrey,
-            gap: 15,
-            padding: '0 20px',
-          },
-        })}
-      >
-        <h1>Oops!</h1>
-        <p>Mobile view will come later, for a better user experience please use the app in a 680px or larger screen</p>
-      </section>
     </>
   )
 }

@@ -5,24 +5,36 @@ import '@/styles/globals.css'
 import dayjs from 'dayjs'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
+import { App, ConfigProvider, notification } from 'antd'
 
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 1000 * 120 },
-  },
-})
-
 const MyApp: AppType = ({ Component, pageProps }) => {
+  const [api, contextHolder] = notification.useNotification()
+  const queryClient = useQueryClient()
+
+  queryClient.setDefaultOptions({
+    queries: { staleTime: 1000 * 240 },
+    mutations: {
+      onError: (err) => api.error({ message: 'Something Went Wrong', description: `${err}` }),
+      onSuccess: () => api.success({ message: 'Operation Succeeded' }),
+    },
+  })
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <NavLayout>
-        <Component {...pageProps} />
-      </NavLayout>
-    </QueryClientProvider>
+    <ConfigProvider
+      theme={{
+        token: { fontSize: 16 },
+        components: { Table: { fontSize: 14 }, DatePicker: { fontSize: 14 }, Button: { fontSize: 14 } },
+      }}
+    >
+      <App>
+        <NavLayout content={<Component {...pageProps} />} />
+        {contextHolder}
+      </App>
+    </ConfigProvider>
   )
 }
 

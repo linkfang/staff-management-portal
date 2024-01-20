@@ -9,6 +9,7 @@ export const COLORS = {
   grey: '#D9D9D9',
   green: '#149200',
   orange: '#D3A128',
+  errorRed: '#cd201f',
   textBlack: '#151515',
   bgColor: '#F7FBFC',
 } as const
@@ -35,8 +36,9 @@ export const STYLES = {
   sectionTitle: css({ color: COLORS.textGrey, marginBottom: 25 }),
   skillDot: css({ height: 10, width: 10, borderRadius: 10, backgroundColor: COLORS.green }),
   skillCard: css({
-    border: `1px solid ${COLORS.lightGrey}`,
-    padding: '10px 15px',
+    border: `2px solid ${COLORS.lightGrey}`,
+    padding: '15px 20px',
     borderRadius: SIZES.borderRadius,
   }),
-}
+  buttonWithoutStyle: { backgroundColor: 'transparent', border: 'none', cursor: 'pointer', padding: 0 },
+} as const

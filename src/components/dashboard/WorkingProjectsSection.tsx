@@ -3,19 +3,16 @@ import ProjectsProgressCard from './ProjectsProgressCard'
 import { trpc } from '@/utils/trpc'
 import dayjs from 'dayjs'
 import { Empty, Spin } from 'antd'
+import { renderProjectStatus } from '@/utils/general'
 
 const WorkingProjectsSection = () => {
   const { data: projectsData, isLoading } = trpc.findManyProject.useQuery(undefined, {
-    select: (projects) => projects.filter((project) => project.status === 'On Going'),
+    select: (projects) => projects.filter((project) => renderProjectStatus(project) === 'On Going'),
   })
 
   const renderWorkingProjectsCard = () => {
     if (isLoading) {
-      return (
-        <div css={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Spin />
-        </div>
-      )
+      return <Spin css={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
     }
 
     if (projectsData?.length === 0) return <Empty css={{ marginTop: 30 }} />
