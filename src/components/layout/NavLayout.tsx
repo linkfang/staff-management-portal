@@ -164,17 +164,18 @@ const NavLayout = ({ content }: { content: ReactNode }) => {
           {content}
         </main>
 
-        <button
-          css={{
-            display: openNav ? 'block' : 'none',
-            border: 'none',
-            backgroundColor: 'rgba(0,0,0,0.3)',
-            position: 'fixed',
-            inset: 0,
-            zIndex: 99,
-          }}
-          onClick={() => setOpenNav(false)}
-        ></button>
+        {openNav && (
+          <button
+            css={{
+              border: 'none',
+              backgroundColor: 'rgba(0,0,0,0.3)',
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99,
+            }}
+            onClick={() => setOpenNav(false)}
+          ></button>
+        )}
 
         <nav css={navMenuStyle(openNav)}>
           <div

@@ -7,6 +7,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import { useQueryClient } from '@tanstack/react-query'
 import { App, ConfigProvider, notification } from 'antd'
+import { COLORS } from '@/constants/styles'
 
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
@@ -26,8 +27,12 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ConfigProvider
       theme={{
-        token: { fontSize: 16 },
-        components: { Table: { fontSize: 14 }, DatePicker: { fontSize: 14 }, Button: { fontSize: 14 } },
+        token: { fontSize: 16, colorPrimary: COLORS.primary },
+        components: {
+          Table: { fontSize: 14 },
+          DatePicker: { fontSize: 14 },
+          Button: { fontSize: 14 },
+        },
       }}
     >
       <App>
