@@ -1,6 +1,6 @@
 import { MoreOutlined } from '@ant-design/icons'
 import { Dropdown, type MenuProps, Modal, App } from 'antd'
-import EditExpertise from '../expertise/EditExpertise'
+import EditExpertiseAndSKills from '../expertise/EditExpertiseAndSkills'
 import { useState } from 'react'
 import { trpc } from '@/utils/trpc'
 import type { TEditingData } from '@/type/general'
@@ -18,10 +18,16 @@ const findToBeDeleted = (preData: (Record<string, string | number> & { id: numbe
 
 const MoreOptions = () => {
   const { notification } = App.useApp()
+  const trpcUtils = trpc.useUtils()
 
   const [shouldOpen, setShouldOpen] = useState(false)
   const [type, setType] = useState<'Expertise' | 'Skills'>('Expertise')
   const isEditingExpertise = type === 'Expertise'
+
+  const refetchOnSuccess = () => {
+    trpcUtils.findManyPerson.refetch()
+    trpcUtils.findManyProject.refetch()
+  }
 
   const {
     data: expertiseData,
@@ -41,6 +47,7 @@ const MoreOptions = () => {
 
   const { mutate: mutateExpertise, isLoading: isMutatingExpertise } = trpc.editManyExpertise.useMutation({
     onSuccess: () => {
+      refetchOnSuccess()
       refetchExpertise()
       notification.success({ message: 'Updated expertise' })
     },
@@ -48,6 +55,7 @@ const MoreOptions = () => {
 
   const { mutate: mutateSkills, isLoading: isMutatingSkills } = trpc.editManySkills.useMutation({
     onSuccess: () => {
+      refetchOnSuccess()
       refetchSkills()
       notification.success({ message: 'Updated skills' })
     },
@@ -104,7 +112,7 @@ const MoreOptions = () => {
         onCancel={() => setShouldOpen(false)}
         css={{ minWidth: 600 }}
       >
-        <EditExpertise
+        <EditExpertiseAndSKills
           data={isEditingExpertise ? expertiseData : skillsData}
           closeModal={() => setShouldOpen(false)}
           callbackFunc={isEditingExpertise ? editExpertiseCallback : editSkillCallback}

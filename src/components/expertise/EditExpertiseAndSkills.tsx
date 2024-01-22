@@ -28,7 +28,7 @@ const overlapLineStyle = {
   backgroundColor: '#4f5456',
 } as const
 
-const EditExpertise = ({ closeModal, callbackFunc, data, isMutating, isFetching }: TEditExpertiseProps) => {
+const EditExpertiseAndSKills = ({ closeModal, callbackFunc, data, isMutating, isFetching }: TEditExpertiseProps) => {
   const [editingData, setEditingData] = useState<TEditingData[]>()
 
   const { notification } = App.useApp()
@@ -165,4 +165,4 @@ const EditExpertise = ({ closeModal, callbackFunc, data, isMutating, isFetching 
   )
 }
 
-export default EditExpertise
+export default EditExpertiseAndSKills
