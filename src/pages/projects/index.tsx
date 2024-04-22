@@ -68,7 +68,7 @@ const ProjectsPage = () => {
       width: 120,
       filters: Object.keys(PROJECT_STATUSES).map((item) => ({ text: item, value: item })),
       onFilter: (value, project) => renderProjectStatus(project) === value,
-      sorter: (a, b) => a.startDate.localeCompare(b.startDate),
+      sorter: (a, b) => renderProjectStatus(a).localeCompare(renderProjectStatus(b)),
       render: (project: TProjectData) => {
         const status = renderProjectStatus(project)
         return (
